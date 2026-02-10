@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nimipäivät</string>
+    <string name="widget_description">Shows today\'s Finnish name days on your home screen</string>
+    <string name="today_label">Tänään</string>
+    <string name="tomorrow_label">Huomenna</string>
+    <string name="no_names">Ei nimipäiviä</string>
+    <string name="week_abbr">vko</string>
+    <string name="config_title">Nimipäivät — Asetukset</string>
+    <string name="language_label">Kalenteri</string>
+    <string name="language_finnish">Suomalainen</string>
+    <string name="language_swedish">Suomenruotsalainen</string>
+    <string name="save_button">Tallenna</string>
+</resources>
