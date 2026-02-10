@@ -1,19 +1,19 @@
 package com.example.nimipaivat.widget
 
+import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import androidx.activity.ComponentActivity
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.example.nimipaivat.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class WidgetConfigActivity : ComponentActivity() {
+class WidgetConfigActivity : Activity() {
 
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
