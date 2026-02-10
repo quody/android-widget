@@ -130,6 +130,17 @@ app/build/outputs/apk/debug/app-debug.apk
 gradlew.bat testDebugUnitTest      # Windows
 ```
 
+### Running from Android Studio
+
+This is a widget-only app — it has no launcher activity. If you click **Run** in Android Studio, you'll get a **"Default Activity not found"** error. To fix this:
+
+1. Go to **Run > Edit Configurations...**
+2. Select the **app** configuration
+3. Under **Launch Options**, change **Launch** from "Default Activity" to **Nothing**
+4. Click **OK** and run again
+
+The app will install silently. Add the widget to your home screen afterwards (see step 4 below).
+
 ## Install on an Android phone
 
 ### 1. Enable Developer Options on your phone
