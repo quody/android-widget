@@ -22,7 +22,7 @@
                 android:resource="@xml/nimipaivat_widget_info" />
         </receiver>
 
-        <!-- Boot completed receiver for midnight update -->
+        <!-- Boot completed receiver for post-reboot update -->
         <receiver
             android:name=".widget.BootReceiver"
             android:exported="true">
@@ -30,6 +30,11 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!-- Midnight alarm receiver for daily update -->
+        <receiver
+            android:name=".widget.MidnightUpdateReceiver"
+            android:exported="false" />
 
         <!-- Widget configuration activity -->
         <activity

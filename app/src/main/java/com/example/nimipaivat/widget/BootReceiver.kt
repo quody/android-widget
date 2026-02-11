@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            // Update all widgets immediately
             CoroutineScope(Dispatchers.Default).launch {
                 val manager = GlanceAppWidgetManager(context)
                 val widget = NimipaivatWidget()
@@ -18,6 +19,9 @@ class BootReceiver : BroadcastReceiver() {
                     widget.update(context, glanceId)
                 }
             }
+
+            // Reschedule the midnight alarm (alarms don't survive reboot)
+            MidnightAlarmScheduler.schedule(context)
         }
     }
 }
