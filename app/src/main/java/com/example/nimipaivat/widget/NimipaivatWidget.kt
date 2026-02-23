@@ -7,8 +7,11 @@ import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.state.PreferencesGlanceStateDefinition
 
 class NimipaivatWidget : GlanceAppWidget() {
+
+    override val stateDefinition = PreferencesGlanceStateDefinition
 
     override val sizeMode = SizeMode.Responsive(
         setOf(SMALL_SIZE, MEDIUM_SIZE, LARGE_SIZE)
