@@ -7,7 +7,7 @@ import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.state.PreferencesGlanceStateDefinition
+import androidx.glance.state.PreferencesGlanceStateDefinition
 
 class NimipaivatWidget : GlanceAppWidget() {
 
