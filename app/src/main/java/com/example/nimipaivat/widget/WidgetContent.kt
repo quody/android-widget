@@ -239,10 +239,7 @@ private fun FlippedWidget(
     Spacer(modifier = GlanceModifier.height(6.dp))
     names.forEachIndexed { index, name ->
         val etymology = etymologyRepo.getEtymology(name)
-        Row(
-            modifier = GlanceModifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top
-        ) {
+        Column(modifier = GlanceModifier.fillMaxWidth()) {
             Text(
                 text = name,
                 style = TextStyle(
@@ -251,7 +248,6 @@ private fun FlippedWidget(
                     fontWeight = FontWeight.Bold
                 )
             )
-            Spacer(modifier = GlanceModifier.width(6.dp))
             Text(
                 text = etymology ?: "\u2014",
                 style = TextStyle(
@@ -262,7 +258,7 @@ private fun FlippedWidget(
             )
         }
         if (index < names.size - 1) {
-            Spacer(modifier = GlanceModifier.height(4.dp))
+            Spacer(modifier = GlanceModifier.height(6.dp))
         }
     }
     Spacer(modifier = GlanceModifier.height(8.dp))
