@@ -8,7 +8,6 @@ import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
@@ -62,8 +61,6 @@ fun WidgetContent(context: Context) {
             .let { mod ->
                 when {
                     styleColors.isMaterialYou -> mod.background(GlanceTheme.colors.widgetBackground)
-                    styleColors.backgroundDrawableRes != null ->
-                        mod.background(ImageProvider(styleColors.backgroundDrawableRes))
                     styleColors.backgroundColor != null ->
                         mod.background(styleColors.backgroundColor)
                     else -> mod.background(GlanceTheme.colors.widgetBackground)

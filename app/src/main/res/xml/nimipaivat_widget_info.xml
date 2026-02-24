@@ -13,4 +13,5 @@
     android:widgetCategory="home_screen"
     android:description="@string/widget_description"
     android:previewLayout="@layout/widget_preview"
-    android:configure="com.example.nimipaivat.widget.WidgetConfigActivity" />
+    android:configure="com.example.nimipaivat.widget.WidgetConfigActivity"
+    android:widgetFeatures="reconfigurable" />

@@ -34,9 +34,9 @@ object WidgetPreferences {
             prefs[STYLE_KEY]
         }.first()
         return try {
-            if (name != null) WidgetStyle.valueOf(name) else WidgetStyle.CLASSIC
+            if (name != null) WidgetStyle.valueOf(name) else WidgetStyle.MATERIAL_YOU
         } catch (_: IllegalArgumentException) {
-            WidgetStyle.CLASSIC
+            WidgetStyle.MATERIAL_YOU
         }
     }
 

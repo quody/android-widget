@@ -18,15 +18,9 @@ class WidgetConfigActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     private val styleRadioMap = linkedMapOf(
-        R.id.radio_style_classic to WidgetStyle.CLASSIC,
         R.id.radio_style_dark to WidgetStyle.DARK,
         R.id.radio_style_material_you to WidgetStyle.MATERIAL_YOU,
-        R.id.radio_style_finnish to WidgetStyle.FINNISH,
-        R.id.radio_style_sunrise to WidgetStyle.SUNRISE,
-        R.id.radio_style_aurora to WidgetStyle.AURORA,
         R.id.radio_style_frosted_glass to WidgetStyle.FROSTED_GLASS,
-        R.id.radio_style_seasonal to WidgetStyle.SEASONAL,
-        R.id.radio_style_time_of_day to WidgetStyle.TIME_OF_DAY,
         R.id.radio_style_paper to WidgetStyle.PAPER,
     )
 
@@ -61,14 +55,14 @@ class WidgetConfigActivity : Activity() {
 
             val currentStyle = WidgetPreferences.getStyle(this@WidgetConfigActivity)
             val radioId = styleRadioMap.entries.find { it.value == currentStyle }?.key
-                ?: R.id.radio_style_classic
+                ?: R.id.radio_style_material_you
             styleRadioGroup.check(radioId)
         }
 
         saveButton.setOnClickListener {
             val useSwedish = radioSwedish.isChecked
             val selectedStyleId = styleRadioGroup.checkedRadioButtonId
-            val selectedStyle = styleRadioMap[selectedStyleId] ?: WidgetStyle.CLASSIC
+            val selectedStyle = styleRadioMap[selectedStyleId] ?: WidgetStyle.MATERIAL_YOU
 
             CoroutineScope(Dispatchers.Main).launch {
                 WidgetPreferences.setSwedish(this@WidgetConfigActivity, useSwedish)

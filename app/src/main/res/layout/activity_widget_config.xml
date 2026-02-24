@@ -65,14 +65,6 @@
             android:layout_marginBottom="32dp">
 
             <RadioButton
-                android:id="@+id/radio_style_classic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_classic"
-                android:checked="true"
-                android:padding="8dp" />
-
-            <RadioButton
                 android:id="@+id/radio_style_dark"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -84,27 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/style_material_you"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_finnish"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_finnish"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_sunrise"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_sunrise"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_aurora"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_aurora"
+                android:checked="true"
                 android:padding="8dp" />
 
             <RadioButton
@@ -112,20 +84,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/style_frosted_glass"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_seasonal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_seasonal"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_time_of_day"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_time_of_day"
                 android:padding="8dp" />
 
             <RadioButton
