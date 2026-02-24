@@ -68,10 +68,12 @@ class WidgetConfigActivity : Activity() {
                 WidgetPreferences.setSwedish(this@WidgetConfigActivity, useSwedish)
                 WidgetPreferences.setStyle(this@WidgetConfigActivity, selectedStyle)
 
-                // Update the widget
+                // Update all widget instances so new style/language takes effect
+                val widget = NimipaivatWidget()
                 val manager = GlanceAppWidgetManager(this@WidgetConfigActivity)
-                val glanceId = manager.getGlanceIdBy(appWidgetId)
-                NimipaivatWidget().update(this@WidgetConfigActivity, glanceId)
+                manager.getGlanceIds(NimipaivatWidget::class.java).forEach { glanceId ->
+                    widget.update(this@WidgetConfigActivity, glanceId)
+                }
 
                 // Return success
                 val resultValue = Intent().putExtra(
