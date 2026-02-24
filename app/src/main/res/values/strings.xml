@@ -11,4 +11,15 @@
     <string name="language_finnish">Suomalainen</string>
     <string name="language_swedish">Suomenruotsalainen</string>
     <string name="save_button">Tallenna</string>
+    <string name="style_label">Tyyli</string>
+    <string name="style_classic">Klassinen</string>
+    <string name="style_dark">Tumma</string>
+    <string name="style_material_you">Material You</string>
+    <string name="style_finnish">Suomi</string>
+    <string name="style_sunrise">Auringonnousu</string>
+    <string name="style_aurora">Revontulet</string>
+    <string name="style_frosted_glass">Lasi</string>
+    <string name="style_seasonal">Vuodenaika</string>
+    <string name="style_time_of_day">Vuorokausirytmi</string>
+    <string name="style_paper">Paperi</string>
 </resources>

@@ -1,57 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/config_title"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="32dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/language_label"
-        android:textSize="16sp"
-        android:layout_marginBottom="12dp" />
-
-    <RadioGroup
-        android:id="@+id/language_radio_group"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="32dp">
+        android:padding="24dp"
+        android:gravity="center_horizontal">
 
-        <RadioButton
-            android:id="@+id/radio_finnish"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/language_finnish"
-            android:checked="true"
-            android:padding="8dp" />
+            android:text="@string/config_title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="32dp" />
 
-        <RadioButton
-            android:id="@+id/radio_swedish"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/language_swedish"
-            android:padding="8dp" />
+            android:text="@string/language_label"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
 
-    </RadioGroup>
+        <RadioGroup
+            android:id="@+id/language_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="32dp">
 
-    <Button
-        android:id="@+id/save_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/save_button"
-        android:paddingStart="32dp"
-        android:paddingEnd="32dp" />
+            <RadioButton
+                android:id="@+id/radio_finnish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_finnish"
+                android:checked="true"
+                android:padding="8dp" />
 
-</LinearLayout>
+            <RadioButton
+                android:id="@+id/radio_swedish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_swedish"
+                android:padding="8dp" />
+
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/style_label"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <RadioGroup
+            android:id="@+id/style_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="32dp">
+
+            <RadioButton
+                android:id="@+id/radio_style_classic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_classic"
+                android:checked="true"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_dark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_dark"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_material_you"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_material_you"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_finnish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_finnish"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_sunrise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_sunrise"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_aurora"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_aurora"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_frosted_glass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_frosted_glass"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_seasonal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_seasonal"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_time_of_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_time_of_day"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_paper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_paper"
+                android:padding="8dp" />
+
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save_button"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp" />
+
+    </LinearLayout>
+
+</ScrollView>
