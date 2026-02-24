@@ -109,13 +109,6 @@ private fun accentColor(styleColors: WidgetStyleColors) =
 @Composable
 private fun SmallWidget(dateText: String, names: List<String>, styleColors: WidgetStyleColors) {
     Text(
-        text = dateText,
-        style = TextStyle(
-            color = secondaryTextColor(styleColors),
-            fontSize = 12.sp
-        )
-    )
-    Text(
         text = names.joinToString(", ").ifEmpty { "\u2014" },
         style = TextStyle(
             color = primaryTextColor(styleColors),
@@ -177,28 +170,14 @@ private fun LargeWidget(
     styleColors: WidgetStyleColors
 ) {
     val dayOfWeek = DateUtils.dayOfWeekFinnish()
-    val weekNumber = DateUtils.weekNumber()
 
-    Row(
-        modifier = GlanceModifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "$dayOfWeek $dateText",
-            style = TextStyle(
-                color = secondaryTextColor(styleColors),
-                fontSize = 12.sp
-            )
+    Text(
+        text = "$dayOfWeek $dateText",
+        style = TextStyle(
+            color = secondaryTextColor(styleColors),
+            fontSize = 12.sp
         )
-        Spacer(modifier = GlanceModifier.defaultWeight())
-        Text(
-            text = "vko $weekNumber",
-            style = TextStyle(
-                color = secondaryTextColor(styleColors),
-                fontSize = 11.sp
-            )
-        )
-    }
+    )
     Spacer(modifier = GlanceModifier.height(4.dp))
     Text(
         text = todayNames.joinToString(", ").ifEmpty { "\u2014" },
