@@ -12,6 +12,7 @@ import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.ImageProvider
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.currentState
@@ -54,13 +55,16 @@ fun WidgetContent(context: Context) {
     val dateText = DateUtils.formatDateFinnish()
 
     GlanceTheme {
+        val isGlass = styleColors.backgroundDrawableRes != null
         val bgModifier = GlanceModifier
             .fillMaxSize()
-            .padding(12.dp)
-            .cornerRadius(16.dp)
+            .padding(if (isGlass) 16.dp else 12.dp)
+            .cornerRadius(if (isGlass) 24.dp else 16.dp)
             .let { mod ->
                 when {
                     styleColors.isMaterialYou -> mod.background(GlanceTheme.colors.widgetBackground)
+                    styleColors.backgroundDrawableRes != null ->
+                        mod.background(ImageProvider(styleColors.backgroundDrawableRes))
                     styleColors.backgroundColor != null ->
                         mod.background(styleColors.backgroundColor)
                     else -> mod.background(GlanceTheme.colors.widgetBackground)

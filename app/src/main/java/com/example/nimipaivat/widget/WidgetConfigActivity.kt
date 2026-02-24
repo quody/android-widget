@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
 import com.example.nimipaivat.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,10 +70,14 @@ class WidgetConfigActivity : Activity() {
                 WidgetPreferences.setSwedish(this@WidgetConfigActivity, useSwedish)
                 WidgetPreferences.setStyle(this@WidgetConfigActivity, selectedStyle)
 
-                // Update all widget instances so new style/language takes effect
+                // Force recomposition by touching widget state, then update
                 val widget = NimipaivatWidget()
                 val manager = GlanceAppWidgetManager(this@WidgetConfigActivity)
+                val configChangedKey = longPreferencesKey("config_changed_at")
                 manager.getGlanceIds(NimipaivatWidget::class.java).forEach { glanceId ->
+                    updateAppWidgetState(this@WidgetConfigActivity, glanceId) { prefs ->
+                        prefs[configChangedKey] = System.currentTimeMillis()
+                    }
                     widget.update(this@WidgetConfigActivity, glanceId)
                 }
 

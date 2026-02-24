@@ -1,6 +1,7 @@
 package com.example.nimipaivat.widget
 
 import androidx.compose.ui.graphics.Color
+import com.example.nimipaivat.R
 
 enum class WidgetStyle(val displayNameKey: String) {
     DARK("style_dark"),
@@ -14,7 +15,8 @@ data class WidgetStyleColors(
     val primaryTextColor: Color?,
     val secondaryTextColor: Color?,
     val accentColor: Color?,
-    val isMaterialYou: Boolean = false
+    val isMaterialYou: Boolean = false,
+    val backgroundDrawableRes: Int? = null
 )
 
 fun resolveStyle(style: WidgetStyle): WidgetStyleColors {
@@ -33,10 +35,11 @@ fun resolveStyle(style: WidgetStyle): WidgetStyleColors {
             isMaterialYou = true
         )
         WidgetStyle.FROSTED_GLASS -> WidgetStyleColors(
-            backgroundColor = Color(0xB3FFFFFF.toInt()),
-            primaryTextColor = Color(0xFF1C1C1E),
-            secondaryTextColor = Color(0xFF3C3C43),
-            accentColor = Color(0xFF007AFF)
+            backgroundColor = null,
+            primaryTextColor = Color(0xEEFFFFFF),
+            secondaryTextColor = Color(0xAAFFFFFF),
+            accentColor = Color(0xFF64D2FF),
+            backgroundDrawableRes = R.drawable.glass_background
         )
         WidgetStyle.PAPER -> WidgetStyleColors(
             backgroundColor = Color(0xFFFFF8F0),
