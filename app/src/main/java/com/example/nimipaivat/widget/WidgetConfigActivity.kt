@@ -22,7 +22,8 @@ class WidgetConfigActivity : Activity() {
     private val styleRadioMap = linkedMapOf(
         R.id.radio_style_dark to WidgetStyle.DARK,
         R.id.radio_style_material_you to WidgetStyle.MATERIAL_YOU,
-        R.id.radio_style_frosted_glass to WidgetStyle.FROSTED_GLASS,
+        R.id.radio_style_glass_light to WidgetStyle.GLASS_LIGHT,
+        R.id.radio_style_glass_dark to WidgetStyle.GLASS_DARK,
         R.id.radio_style_paper to WidgetStyle.PAPER,
     )
 

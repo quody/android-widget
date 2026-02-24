@@ -14,6 +14,7 @@
     <string name="style_label">Tyyli</string>
     <string name="style_dark">Tumma</string>
     <string name="style_material_you">Material You</string>
-    <string name="style_frosted_glass">Lasi</string>
+    <string name="style_glass_light">Lasi (musta teksti)</string>
+    <string name="style_glass_dark">Lasi tumma (valkoinen teksti)</string>
     <string name="style_paper">Paperi</string>
 </resources>

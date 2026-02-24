@@ -34,7 +34,11 @@ object WidgetPreferences {
             prefs[STYLE_KEY]
         }.first()
         return try {
-            if (name != null) WidgetStyle.valueOf(name) else WidgetStyle.MATERIAL_YOU
+            when (name) {
+                null -> WidgetStyle.MATERIAL_YOU
+                "FROSTED_GLASS" -> WidgetStyle.GLASS_LIGHT
+                else -> WidgetStyle.valueOf(name)
+            }
         } catch (_: IllegalArgumentException) {
             WidgetStyle.MATERIAL_YOU
         }

@@ -6,7 +6,8 @@ import com.example.nimipaivat.R
 enum class WidgetStyle(val displayNameKey: String) {
     DARK("style_dark"),
     MATERIAL_YOU("style_material_you"),
-    FROSTED_GLASS("style_frosted_glass"),
+    GLASS_LIGHT("style_glass_light"),
+    GLASS_DARK("style_glass_dark"),
     PAPER("style_paper");
 }
 
@@ -34,7 +35,14 @@ fun resolveStyle(style: WidgetStyle): WidgetStyleColors {
             accentColor = null,
             isMaterialYou = true
         )
-        WidgetStyle.FROSTED_GLASS -> WidgetStyleColors(
+        WidgetStyle.GLASS_LIGHT -> WidgetStyleColors(
+            backgroundColor = null,
+            primaryTextColor = Color(0xFF1C1C1E),
+            secondaryTextColor = Color(0xFF3C3C43),
+            accentColor = Color(0xFF007AFF),
+            backgroundDrawableRes = R.drawable.glass_background_light
+        )
+        WidgetStyle.GLASS_DARK -> WidgetStyleColors(
             backgroundColor = null,
             primaryTextColor = Color(0xEEFFFFFF),
             secondaryTextColor = Color(0xAAFFFFFF),
