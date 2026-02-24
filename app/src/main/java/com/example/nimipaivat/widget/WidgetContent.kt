@@ -70,7 +70,7 @@ fun WidgetContent(context: Context) {
                 ) {
                     when {
                         size.width < 180.dp -> SmallWidget(dateText, todayNames)
-                        size.width < 250.dp -> MediumWidget(dateText, todayNames, tomorrowNames)
+                        size.width < 250.dp -> MediumWidget(dateText, todayNames)
                         else -> LargeWidget(dateText, todayNames, tomorrowNames)
                     }
                 }
@@ -103,8 +103,7 @@ private fun SmallWidget(dateText: String, names: List<String>) {
 @Composable
 private fun MediumWidget(
     dateText: String,
-    todayNames: List<String>,
-    tomorrowNames: List<String>
+    todayNames: List<String>
 ) {
     Text(
         text = dateText,
@@ -122,22 +121,7 @@ private fun MediumWidget(
         ),
         maxLines = 2
     )
-    Spacer(modifier = GlanceModifier.height(8.dp))
-    Text(
-        text = "Huomenna",
-        style = TextStyle(
-            color = GlanceTheme.colors.onSurface,
-            fontSize = 11.sp
-        )
-    )
-    Text(
-        text = tomorrowNames.joinToString(", ").ifEmpty { "\u2014" },
-        style = TextStyle(
-            color = GlanceTheme.colors.onSurface,
-            fontSize = 14.sp
-        ),
-        maxLines = 1
-    )
+    Spacer(modifier = GlanceModifier.defaultWeight())
     EtymologyButton()
 }
 
@@ -185,26 +169,24 @@ private fun LargeWidget(
         modifier = GlanceModifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "Huomenna: ",
-                style = TextStyle(
-                    color = GlanceTheme.colors.onSurface,
-                    fontSize = 12.sp
-                )
+        Text(
+            text = "Huomenna: ",
+            style = TextStyle(
+                color = GlanceTheme.colors.onSurface,
+                fontSize = 12.sp
             )
-            Text(
-                text = tomorrowNames.joinToString(", ").ifEmpty { "\u2014" },
-                style = TextStyle(
-                    color = GlanceTheme.colors.onSurface,
-                    fontSize = 13.sp
-                ),
-                maxLines = 1
-            )
-        }
-        Spacer(modifier = GlanceModifier.defaultWeight())
-        EtymologyButton()
+        )
+        Text(
+            text = tomorrowNames.joinToString(", ").ifEmpty { "\u2014" },
+            style = TextStyle(
+                color = GlanceTheme.colors.onSurface,
+                fontSize = 13.sp
+            ),
+            maxLines = 1
+        )
     }
+    Spacer(modifier = GlanceModifier.defaultWeight())
+    EtymologyButton()
 }
 
 @Composable
@@ -224,28 +206,14 @@ private fun FlippedWidget(
     names: List<String>,
     etymologyRepo: EtymologyRepository
 ) {
-    Row(
-        modifier = GlanceModifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "\u2039 Takaisin",
-            style = TextStyle(
-                color = GlanceTheme.colors.primary,
-                fontSize = 12.sp
-            ),
-            modifier = GlanceModifier.clickable(actionRunCallback<FlipAction>())
+    Text(
+        text = "Etymologia",
+        style = TextStyle(
+            color = GlanceTheme.colors.onSurface,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = GlanceModifier.defaultWeight())
-        Text(
-            text = "Etymologia",
-            style = TextStyle(
-                color = GlanceTheme.colors.onSurface,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-        )
-    }
+    )
     Spacer(modifier = GlanceModifier.height(6.dp))
     names.forEachIndexed { index, name ->
         val etymology = etymologyRepo.getEtymology(name)
@@ -275,4 +243,13 @@ private fun FlippedWidget(
             Spacer(modifier = GlanceModifier.height(4.dp))
         }
     }
+    Spacer(modifier = GlanceModifier.defaultWeight())
+    Text(
+        text = "\u2039 Takaisin",
+        style = TextStyle(
+            color = GlanceTheme.colors.primary,
+            fontSize = 11.sp
+        ),
+        modifier = GlanceModifier.clickable(actionRunCallback<FlipAction>())
+    )
 }
