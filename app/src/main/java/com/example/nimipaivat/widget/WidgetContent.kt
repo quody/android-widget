@@ -127,13 +127,6 @@ private fun MediumWidget(
     styleColors: WidgetStyleColors
 ) {
     Text(
-        text = dateText,
-        style = TextStyle(
-            color = secondaryTextColor(styleColors),
-            fontSize = 12.sp
-        )
-    )
-    Text(
         text = todayNames.joinToString(", ").ifEmpty { "\u2014" },
         style = TextStyle(
             color = primaryTextColor(styleColors),
