@@ -121,7 +121,7 @@ private fun MediumWidget(
         ),
         maxLines = 2
     )
-    Spacer(modifier = GlanceModifier.defaultWeight())
+    Spacer(modifier = GlanceModifier.height(8.dp))
     EtymologyButton()
 }
 
@@ -185,7 +185,7 @@ private fun LargeWidget(
             maxLines = 1
         )
     }
-    Spacer(modifier = GlanceModifier.defaultWeight())
+    Spacer(modifier = GlanceModifier.height(8.dp))
     EtymologyButton()
 }
 
@@ -243,7 +243,7 @@ private fun FlippedWidget(
             Spacer(modifier = GlanceModifier.height(4.dp))
         }
     }
-    Spacer(modifier = GlanceModifier.defaultWeight())
+    Spacer(modifier = GlanceModifier.height(8.dp))
     Text(
         text = "\u2039 Takaisin",
         style = TextStyle(
