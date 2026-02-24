@@ -81,8 +81,8 @@ fun WidgetContent(context: Context) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     when {
-                        size.width < 180.dp -> SmallWidget(dateText, todayNames, styleColors)
-                        size.width < 250.dp -> MediumWidget(dateText, todayNames, tomorrowNames, styleColors)
+                        size.height < 100.dp -> SmallWidget(dateText, todayNames, styleColors)
+                        size.height < 180.dp -> MediumWidget(dateText, todayNames, tomorrowNames, styleColors)
                         else -> LargeWidget(dateText, todayNames, tomorrowNames, styleColors)
                     }
                 }

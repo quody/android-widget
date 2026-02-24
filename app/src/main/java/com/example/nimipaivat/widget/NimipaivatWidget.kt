@@ -25,7 +25,7 @@ class NimipaivatWidget : GlanceAppWidget() {
 
     companion object {
         val SMALL_SIZE = DpSize(110.dp, 40.dp)
-        val MEDIUM_SIZE = DpSize(180.dp, 40.dp)
-        val LARGE_SIZE = DpSize(250.dp, 40.dp)
+        val MEDIUM_SIZE = DpSize(110.dp, 100.dp)
+        val LARGE_SIZE = DpSize(110.dp, 180.dp)
     }
 }
