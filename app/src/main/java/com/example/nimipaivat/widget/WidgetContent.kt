@@ -70,7 +70,7 @@ fun WidgetContent(context: Context) {
                 ) {
                     when {
                         size.width < 180.dp -> SmallWidget(dateText, todayNames)
-                        size.width < 250.dp -> MediumWidget(dateText, todayNames)
+                        size.width < 250.dp -> MediumWidget(dateText, todayNames, tomorrowNames)
                         else -> LargeWidget(dateText, todayNames, tomorrowNames)
                     }
                 }
@@ -97,13 +97,13 @@ private fun SmallWidget(dateText: String, names: List<String>) {
         ),
         maxLines = 2
     )
-    EtymologyButton()
 }
 
 @Composable
 private fun MediumWidget(
     dateText: String,
-    todayNames: List<String>
+    todayNames: List<String>,
+    tomorrowNames: List<String>
 ) {
     Text(
         text = dateText,
@@ -120,6 +120,22 @@ private fun MediumWidget(
             fontWeight = FontWeight.Bold
         ),
         maxLines = 2
+    )
+    Spacer(modifier = GlanceModifier.height(8.dp))
+    Text(
+        text = "Huomenna",
+        style = TextStyle(
+            color = GlanceTheme.colors.onSurface,
+            fontSize = 11.sp
+        )
+    )
+    Text(
+        text = tomorrowNames.joinToString(", ").ifEmpty { "\u2014" },
+        style = TextStyle(
+            color = GlanceTheme.colors.onSurface,
+            fontSize = 14.sp
+        ),
+        maxLines = 1
     )
     Spacer(modifier = GlanceModifier.height(8.dp))
     EtymologyButton()
