@@ -40,6 +40,23 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            // Needed by the Robolectric widget preview test (assets + drawables).
+            isIncludeAndroidResources = true
+            all { test ->
+                // Render with Skia + HardwareRenderer so rounded corners/outlines match a device.
+                test.systemProperty("robolectric.graphicsMode", "NATIVE")
+                test.systemProperty("robolectric.pixelCopyRenderMode", "hardware")
+                test.maxHeapSize = "2g"
+                // Pass -PwidgetPreviewDir=/some/dir to write widget preview PNGs.
+                project.findProperty("widgetPreviewDir")?.let {
+                    test.systemProperty("widgetPreviewDir", it.toString())
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -51,4 +68,6 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }

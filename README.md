@@ -130,6 +130,14 @@ app/build/outputs/apk/debug/app-debug.apk
 gradlew.bat testDebugUnitTest      # Windows
 ```
 
+### Widget style previews (no emulator needed)
+
+`WidgetPreviewScreenshotTest` renders the real widget (every style, names and etymology screen, small/medium/large) with Robolectric native graphics. Pass an absolute output directory to get PNGs:
+
+```bash
+./gradlew :app:testDebugUnitTest --tests '*WidgetPreviewScreenshotTest' -PwidgetPreviewDir="$PWD/build/widget-previews"
+```
+
 ### Running from Android Studio
 
 This is a widget-only app — it has no launcher activity. If you click **Run** in Android Studio, you'll get a **"Default Activity not found"** error. To fix this:
