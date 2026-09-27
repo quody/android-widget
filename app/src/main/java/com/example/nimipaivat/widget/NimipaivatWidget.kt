@@ -1,8 +1,6 @@
 package com.example.nimipaivat.widget
 
 import android.content.Context
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
@@ -13,19 +11,15 @@ class NimipaivatWidget : GlanceAppWidget() {
 
     override val stateDefinition = PreferencesGlanceStateDefinition
 
-    override val sizeMode = SizeMode.Responsive(
-        setOf(SMALL_SIZE, MEDIUM_SIZE, LARGE_SIZE)
-    )
+    // Exact: LocalSize is the widget's real size (not a responsive bucket), which
+    // the wavy-edge background bitmap needs to keep its shape undistorted. The
+    // layout picks small/medium/large from it with its own height breakpoints
+    // (100dp and 180dp, see WidgetLayout), same as the former responsive buckets.
+    override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             WidgetContent(context)
         }
-    }
-
-    companion object {
-        val SMALL_SIZE = DpSize(110.dp, 40.dp)
-        val MEDIUM_SIZE = DpSize(110.dp, 100.dp)
-        val LARGE_SIZE = DpSize(110.dp, 180.dp)
     }
 }

@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Switch
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -57,6 +58,19 @@ class WidgetConfigActivity : Activity() {
         val radioSwedish = findViewById<RadioButton>(R.id.radio_swedish)
         val styleRadioGroup = findViewById<RadioGroup>(R.id.style_radio_group)
         val saveButton = findViewById<Button>(R.id.save_button)
+        val pastelFinishContainer = findViewById<View>(R.id.pastel_finish_container)
+        val pastelFinishGroup = findViewById<RadioGroup>(R.id.pastel_finish_group)
+        val wavySwitch = findViewById<Switch>(R.id.switch_wavy_edge)
+
+        // Glass / opaque only applies to the pastel styles.
+        fun updatePastelFinishVisibility(checkedId: Int) {
+            val isPastel = styleRadioMap[checkedId]?.isPastel == true
+            pastelFinishContainer.visibility = if (isPastel) View.VISIBLE else View.GONE
+        }
+        styleRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            updatePastelFinishVisibility(checkedId)
+        }
+        updatePastelFinishVisibility(styleRadioGroup.checkedRadioButtonId)
 
         // Load current preferences
         CoroutineScope(Dispatchers.Main).launch {
@@ -67,16 +81,24 @@ class WidgetConfigActivity : Activity() {
             val radioId = styleRadioMap.entries.find { it.value == currentStyle }?.key
                 ?: R.id.radio_style_material_you
             styleRadioGroup.check(radioId)
+
+            val glass = WidgetPreferences.isPastelGlass(this@WidgetConfigActivity)
+            pastelFinishGroup.check(if (glass) R.id.radio_finish_glass else R.id.radio_finish_opaque)
+            wavySwitch.isChecked = WidgetPreferences.isWavyEdge(this@WidgetConfigActivity)
         }
 
         saveButton.setOnClickListener {
             val useSwedish = radioSwedish.isChecked
             val selectedStyleId = styleRadioGroup.checkedRadioButtonId
             val selectedStyle = styleRadioMap[selectedStyleId] ?: WidgetStyle.MATERIAL_YOU
+            val pastelGlass = pastelFinishGroup.checkedRadioButtonId == R.id.radio_finish_glass
+            val wavyEdge = wavySwitch.isChecked
 
             CoroutineScope(Dispatchers.Main).launch {
                 WidgetPreferences.setSwedish(this@WidgetConfigActivity, useSwedish)
                 WidgetPreferences.setStyle(this@WidgetConfigActivity, selectedStyle)
+                WidgetPreferences.setPastelGlass(this@WidgetConfigActivity, pastelGlass)
+                WidgetPreferences.setWavyEdge(this@WidgetConfigActivity, wavyEdge)
 
                 // Force recomposition by touching widget state, then update
                 val widget = NimipaivatWidget()

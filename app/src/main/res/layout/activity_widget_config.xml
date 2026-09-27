@@ -128,6 +128,58 @@
 
         </RadioGroup>
 
+        <!-- Only shown while a pastel style is selected (WidgetConfigActivity). -->
+        <LinearLayout
+            android:id="@+id/pastel_finish_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:visibility="gone"
+            android:layout_marginBottom="32dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pastel_finish_label"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
+
+            <RadioGroup
+                android:id="@+id/pastel_finish_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio_finish_opaque"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pastel_finish_opaque"
+                    android:checked="true"
+                    android:padding="8dp" />
+
+                <RadioButton
+                    android:id="@+id/radio_finish_glass"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pastel_finish_glass"
+                    android:padding="8dp" />
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/switch_wavy_edge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/wavy_edge_label"
+            android:textSize="16sp"
+            android:switchPadding="16dp"
+            android:padding="8dp"
+            android:layout_marginBottom="32dp" />
+
         <Button
             android:id="@+id/save_button"
             android:layout_width="wrap_content"

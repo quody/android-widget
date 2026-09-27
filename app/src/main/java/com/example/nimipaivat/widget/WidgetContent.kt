@@ -4,10 +4,13 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
 import androidx.glance.GlanceModifier
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
@@ -43,7 +46,9 @@ fun WidgetContent(context: Context) {
     val repository = NameDayRepository(context)
     val useSwedish = runBlocking { WidgetPreferences.isSwedish(context) }
     val widgetStyle = runBlocking { WidgetPreferences.getStyle(context) }
-    val styleColors = resolveStyle(widgetStyle)
+    val pastelGlass = runBlocking { WidgetPreferences.isPastelGlass(context) }
+    val wavyEdge = runBlocking { WidgetPreferences.isWavyEdge(context) }
+    val styleColors = resolveStyle(widgetStyle, pastelGlass)
 
     val todayKey = DateUtils.todayKey()
     val tomorrowKey = DateUtils.tomorrowKey()
@@ -62,7 +67,8 @@ fun WidgetContent(context: Context) {
         todayNames = todayNames,
         tomorrowNames = tomorrowNames,
         styleColors = styleColors,
-        etymologyOf = etymologyRepo::getEtymology
+        etymologyOf = etymologyRepo::getEtymology,
+        wavyEdge = wavyEdge
     )
 }
 
@@ -77,33 +83,61 @@ internal fun WidgetLayout(
     todayNames: List<String>,
     tomorrowNames: List<String>,
     styleColors: WidgetStyleColors,
-    etymologyOf: (String) -> String?
+    etymologyOf: (String) -> String?,
+    wavyEdge: Boolean = false
 ) {
     val size = LocalSize.current
+    val context = LocalContext.current
 
     GlanceTheme {
         val hasDrawableBackground = styleColors.backgroundDrawableRes != null
-        // Below the large breakpoint the etymology screen trades 4dp of vertical
+        // Below the large breakpoint the etymology screen trades 2dp of vertical
         // padding for content. The pastel drawables' inner panel is inset 8dp
-        // (under a 4dp border), so 12dp still keeps all text on the panel.
+        // (under a 3-4dp border) with 18dp corners, so 12dp still keeps all text
+        // on the panel.
         val compactEtymology = isFlipped && size.height < LARGE_MIN_HEIGHT
-        val horizontalPadding = if (hasDrawableBackground) 16.dp else 12.dp
+        val wavyExtra = if (wavyEdge) WavyEdge.CONTENT_EXTRA_PADDING else 0.dp
+        val basePadding = if (hasDrawableBackground) 14.dp else 10.dp
+        val horizontalPadding = basePadding + wavyExtra
+        // A small (< 100dp) widget has exactly room for two 18sp name lines, so
+        // there the wave only gets extra side padding: the troughs (and the
+        // pastel panel's wavy edge, ~12dp in) still stay clear of the text.
+        val verticalExtra = if (size.height < SMALL_MAX_HEIGHT) 0.dp else wavyExtra
         val verticalPadding =
-            if (compactEtymology) horizontalPadding - 4.dp else horizontalPadding
-        val bgModifier = GlanceModifier
+            (if (compactEtymology) basePadding - 2.dp else basePadding) + verticalExtra
+        val base = GlanceModifier
             .fillMaxSize()
             .padding(horizontal = horizontalPadding, vertical = verticalPadding)
-            .cornerRadius(if (hasDrawableBackground) 24.dp else 16.dp)
-            .let { mod ->
-                when {
-                    styleColors.isMaterialYou -> mod.background(GlanceTheme.colors.widgetBackground)
-                    styleColors.backgroundDrawableRes != null ->
-                        mod.background(ImageProvider(styleColors.backgroundDrawableRes))
-                    styleColors.backgroundColor != null ->
-                        mod.background(styleColors.backgroundColor)
-                    else -> mod.background(GlanceTheme.colors.widgetBackground)
-                }
+        val bgModifier = if (wavyEdge) {
+            // The wavy outline is painted into a bitmap at the widget's real size
+            // (SizeMode.Exact); no cornerRadius clip, it would cut the crests.
+            val bitmap = WavyEdge.render(
+                size, context.resources.displayMetrics.density, styleColors.wavyPainter
+            )
+            when (val painter = styleColors.wavyPainter) {
+                is WavyPainter.Solid -> base.background(
+                    ImageProvider(bitmap),
+                    colorFilter = ColorFilter.tint(
+                        painter.color?.let { ColorProvider(it, it) }
+                            ?: GlanceTheme.colors.widgetBackground
+                    )
+                )
+                else -> base.background(ImageProvider(bitmap))
             }
+        } else {
+            base
+                .cornerRadius(if (hasDrawableBackground) 24.dp else 16.dp)
+                .let { mod ->
+                    when {
+                        styleColors.isMaterialYou -> mod.background(GlanceTheme.colors.widgetBackground)
+                        styleColors.backgroundDrawableRes != null ->
+                            mod.background(ImageProvider(styleColors.backgroundDrawableRes))
+                        styleColors.backgroundColor != null ->
+                            mod.background(styleColors.backgroundColor)
+                        else -> mod.background(GlanceTheme.colors.widgetBackground)
+                    }
+                }
+        }
         Column(
             modifier = bgModifier,
             verticalAlignment = Alignment.CenterVertically
@@ -122,7 +156,7 @@ internal fun WidgetLayout(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     when {
-                        size.height < 100.dp -> SmallWidget(dateText, todayNames, styleColors)
+                        size.height < SMALL_MAX_HEIGHT -> SmallWidget(dateText, todayNames, styleColors)
                         size.height < LARGE_MIN_HEIGHT -> MediumWidget(dateText, todayNames, tomorrowNames, styleColors)
                         else -> LargeWidget(dateText, todayNames, tomorrowNames, styleColors)
                     }
@@ -132,6 +166,7 @@ internal fun WidgetLayout(
     }
 }
 
+private val SMALL_MAX_HEIGHT = 100.dp
 private val LARGE_MIN_HEIGHT = 180.dp
 
 @Composable
@@ -155,7 +190,7 @@ private fun SmallWidget(dateText: String, names: List<String>, styleColors: Widg
         text = names.joinToString(", ").ifEmpty { "\u2014" },
         style = TextStyle(
             color = primaryTextColor(styleColors),
-            fontSize = 16.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         ),
         maxLines = 2
@@ -173,29 +208,53 @@ private fun MediumWidget(
         text = todayNames.joinToString(", ").ifEmpty { "\u2014" },
         style = TextStyle(
             color = primaryTextColor(styleColors),
-            fontSize = 18.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         ),
         maxLines = 2
     )
-    Spacer(modifier = GlanceModifier.height(8.dp))
-    Text(
-        text = "Huomenna",
-        style = TextStyle(
-            color = secondaryTextColor(styleColors),
-            fontSize = 11.sp
+    // "Huomenna: ..." and the Etymologia link share one row, so the bigger
+    // names still fit a ~120dp tall widget (also with the wavy edge's padding).
+    Spacer(modifier = GlanceModifier.height(6.dp))
+    TomorrowRow(
+        tomorrowNames, styleColors, labelSize = 11.sp, namesSize = 14.sp,
+        trailingEtymologyLink = true
+    )
+}
+
+@Composable
+private fun TomorrowRow(
+    tomorrowNames: List<String>,
+    styleColors: WidgetStyleColors,
+    labelSize: TextUnit,
+    namesSize: TextUnit,
+    trailingEtymologyLink: Boolean = false
+) {
+    Row(
+        modifier = GlanceModifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Huomenna: ",
+            style = TextStyle(
+                color = secondaryTextColor(styleColors),
+                fontSize = labelSize
+            )
         )
-    )
-    Text(
-        text = tomorrowNames.joinToString(", ").ifEmpty { "\u2014" },
-        style = TextStyle(
-            color = primaryTextColor(styleColors),
-            fontSize = 14.sp
-        ),
-        maxLines = 1
-    )
-    Spacer(modifier = GlanceModifier.height(8.dp))
-    EtymologyButton(styleColors)
+        Text(
+            text = tomorrowNames.joinToString(", ").ifEmpty { "\u2014" },
+            style = TextStyle(
+                color = primaryTextColor(styleColors),
+                fontSize = namesSize
+            ),
+            maxLines = 1,
+            modifier = if (trailingEtymologyLink) GlanceModifier.defaultWeight() else GlanceModifier
+        )
+        if (trailingEtymologyLink) {
+            Spacer(modifier = GlanceModifier.width(8.dp))
+            EtymologyButton(styleColors)
+        }
+    }
 }
 
 @Composable
@@ -214,38 +273,19 @@ private fun LargeWidget(
             fontSize = 12.sp
         )
     )
-    Spacer(modifier = GlanceModifier.height(4.dp))
+    Spacer(modifier = GlanceModifier.height(2.dp))
     Text(
         text = todayNames.joinToString(", ").ifEmpty { "\u2014" },
         style = TextStyle(
             color = primaryTextColor(styleColors),
-            fontSize = 20.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         ),
         maxLines = 2
     )
-    Spacer(modifier = GlanceModifier.height(8.dp))
-    Row(
-        modifier = GlanceModifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Huomenna: ",
-            style = TextStyle(
-                color = secondaryTextColor(styleColors),
-                fontSize = 12.sp
-            )
-        )
-        Text(
-            text = tomorrowNames.joinToString(", ").ifEmpty { "\u2014" },
-            style = TextStyle(
-                color = primaryTextColor(styleColors),
-                fontSize = 13.sp
-            ),
-            maxLines = 1
-        )
-    }
-    Spacer(modifier = GlanceModifier.height(8.dp))
+    Spacer(modifier = GlanceModifier.height(6.dp))
+    TomorrowRow(tomorrowNames, styleColors, labelSize = 12.sp, namesSize = 13.sp)
+    Spacer(modifier = GlanceModifier.height(6.dp))
     EtymologyButton(styleColors)
 }
 
@@ -278,7 +318,7 @@ private fun FlippedWidget(
     val headerGap = if (compact) 2.dp else 6.dp
     val itemGap = if (compact) 3.dp else 6.dp
     val headerSize = if (compact) 11.sp else 12.sp
-    val nameSize = if (compact) 12.sp else 13.sp
+    val nameSize = if (compact) 13.sp else 15.sp
     Column(modifier = GlanceModifier.fillMaxSize()) {
         Row(
             modifier = GlanceModifier.fillMaxWidth(),

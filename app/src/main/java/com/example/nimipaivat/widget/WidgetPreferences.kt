@@ -16,6 +16,8 @@ object WidgetPreferences {
 
     private val USE_SWEDISH = booleanPreferencesKey("use_swedish")
     private val STYLE_KEY = stringPreferencesKey("widget_style")
+    private val PASTEL_GLASS_KEY = booleanPreferencesKey("pastel_glass")
+    private val WAVY_EDGE_KEY = booleanPreferencesKey("wavy_edge")
 
     suspend fun isSwedish(context: Context): Boolean {
         return context.dataStore.data.map { prefs ->
@@ -48,5 +50,23 @@ object WidgetPreferences {
         context.dataStore.edit { prefs ->
             prefs[STYLE_KEY] = style.name
         }
+    }
+
+    /** Glass (translucent) instead of opaque card for the pastel styles. Default: opaque. */
+    suspend fun isPastelGlass(context: Context): Boolean {
+        return context.dataStore.data.map { prefs -> prefs[PASTEL_GLASS_KEY] ?: false }.first()
+    }
+
+    suspend fun setPastelGlass(context: Context, glass: Boolean) {
+        context.dataStore.edit { prefs -> prefs[PASTEL_GLASS_KEY] = glass }
+    }
+
+    /** Scalloped Material 3 Expressive widget outline, any style. Default: off. */
+    suspend fun isWavyEdge(context: Context): Boolean {
+        return context.dataStore.data.map { prefs -> prefs[WAVY_EDGE_KEY] ?: false }.first()
+    }
+
+    suspend fun setWavyEdge(context: Context, wavy: Boolean) {
+        context.dataStore.edit { prefs -> prefs[WAVY_EDGE_KEY] = wavy }
     }
 }

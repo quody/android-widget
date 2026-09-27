@@ -20,4 +20,8 @@
     <string name="style_powder_puff">Powder puff</string>
     <string name="style_lemondrop">Lemondrop</string>
     <string name="style_pinkie_promise">Pinkie promise</string>
+    <string name="pastel_finish_label">Pastellin pinta</string>
+    <string name="pastel_finish_opaque">Peittävä</string>
+    <string name="pastel_finish_glass">Lasi</string>
+    <string name="wavy_edge_label">Aaltoileva reuna</string>
 </resources>
