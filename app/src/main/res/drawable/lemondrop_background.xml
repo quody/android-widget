@@ -56,7 +56,10 @@
             <stroke
                 android:width="4dp"
                 android:color="#FFF6A06B" />
-            <corners android:radius="24dp" />
+            <!-- Stroke is centred on a rect inset by half its width, so 22dp here
+                 puts its outer edge on the 24dp card/clip radius; with 24dp the
+                 fill peeked out as a thin halo around the corners. -->
+            <corners android:radius="22dp" />
         </shape>
     </item>
 
