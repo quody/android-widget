@@ -1,193 +1,361 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Safe-area (status bar / cutout / nav bar) padding is added to config_root
-     at runtime from WindowInsets; clipToPadding=false lets content scroll
-     edge to edge underneath the bars. -->
-<ScrollView
+<!-- Widget settings. Top to bottom: app bar, live preview (pinned while the
+     settings scroll; moved into the scroll on short screens), settings, and the
+     primary action pinned above the navigation bar.
+     WidgetConfigActivity pads the app bar / bottom bar / sides with the
+     system bar + cutout insets (edge-to-edge). All content uses a 16dp gutter. -->
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/config_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToPadding="false">
+    android:background="?attr/colorSurface"
+    android:orientation="vertical">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="64dp"
+        android:background="?attr/colorSurface"
+        app:navigationIcon="@drawable/ic_close"
+        app:navigationContentDescription="@string/config_cancel"
+        app:navigationIconTint="?attr/colorOnSurface"
+        app:title="@string/config_title"
+        app:subtitle="@string/config_subtitle"
+        app:titleTextAppearance="?attr/textAppearanceTitleLarge"
+        app:subtitleTextAppearance="?attr/textAppearanceBodyMedium"
+        app:subtitleTextColor="?attr/colorOnSurfaceVariant" />
+
+    <!-- Live preview: the real widget (Glance -> RemoteViews) with the current
+         selections, on a wallpaper-like backdrop. -->
     <LinearLayout
+        android:id="@+id/preview_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center_horizontal">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/config_title"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="32dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/language_label"
-            android:textSize="16sp"
-            android:layout_marginBottom="12dp" />
-
-        <RadioGroup
-            android:id="@+id/language_radio_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="32dp">
-
-            <RadioButton
-                android:id="@+id/radio_finnish"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/language_finnish"
-                android:checked="true"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_swedish"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/language_swedish"
-                android:padding="8dp" />
-
-        </RadioGroup>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/style_label"
-            android:textSize="16sp"
-            android:layout_marginBottom="12dp" />
-
-        <RadioGroup
-            android:id="@+id/style_radio_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="32dp">
-
-            <RadioButton
-                android:id="@+id/radio_style_dark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_dark"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_material_you"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_material_you"
-                android:checked="true"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_glass_light"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_glass_light"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_glass_dark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_glass_dark"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_paper"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_paper"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_powder_puff"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_powder_puff"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_lemondrop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_lemondrop"
-                android:padding="8dp" />
-
-            <RadioButton
-                android:id="@+id/radio_style_pinkie_promise"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/style_pinkie_promise"
-                android:padding="8dp" />
-
-        </RadioGroup>
-
-        <!-- Only shown while a pastel style is selected (WidgetConfigActivity). -->
         <LinearLayout
-            android:id="@+id/pastel_finish_container"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:visibility="gone"
-            android:layout_marginBottom="32dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:accessibilityHeading="true"
+                android:text="@string/preview_label"
+                android:textAppearance="@style/TextAppearance.Nimipaivat.SectionHeader" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/backdrop_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/pastel_finish_label"
-                android:textSize="16sp"
-                android:layout_marginBottom="12dp" />
+                android:contentDescription="@string/preview_backdrop_description"
+                app:selectionRequired="true"
+                app:singleSelection="true">
 
-            <RadioGroup
-                android:id="@+id/pastel_finish_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/radio_finish_opaque"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/backdrop_light"
+                    style="@style/Widget.Nimipaivat.SegmentedButton.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/pastel_finish_opaque"
-                    android:checked="true"
-                    android:padding="8dp" />
+                    android:text="@string/preview_backdrop_light" />
 
-                <RadioButton
-                    android:id="@+id/radio_finish_glass"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/backdrop_dark"
+                    style="@style/Widget.Nimipaivat.SegmentedButton.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/pastel_finish_glass"
-                    android:padding="8dp" />
+                    android:text="@string/preview_backdrop_dark" />
 
-            </RadioGroup>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
 
         </LinearLayout>
 
-        <Switch
-            android:id="@+id/switch_wavy_edge"
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:id="@+id/preview_backdrop"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/wavy_edge_label"
-            android:textSize="16sp"
-            android:switchPadding="16dp"
-            android:padding="8dp"
-            android:layout_marginBottom="32dp" />
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/preview_description"
+            android:importantForAccessibility="yes"
+            android:padding="20dp">
 
-        <Button
-            android:id="@+id/save_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/save_button"
-            android:paddingStart="32dp"
-            android:paddingEnd="32dp" />
+            <com.example.nimipaivat.widget.ScaledPreviewFrame
+                android:id="@+id/preview_frame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:importantForAccessibility="noHideDescendants" />
+
+        </FrameLayout>
 
     </LinearLayout>
 
-</ScrollView>
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/preview_divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/settings_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:id="@+id/settings_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="false"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="24dp">
+
+            <!-- Kalenteri -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/language_label"
+                android:textAppearance="@style/TextAppearance.Nimipaivat.SectionHeader" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/calendar_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_finnish"
+                    style="@style/Widget.Nimipaivat.SegmentedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/language_finnish" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_swedish"
+                    style="@style/Widget.Nimipaivat.SegmentedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/language_swedish" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- Ulkoasu: style cards in three groups, filled in by the activity. -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:accessibilityHeading="true"
+                android:text="@string/appearance_label"
+                android:textAppearance="@style/TextAppearance.Nimipaivat.SectionHeader" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/style_group_basic"
+                android:textAppearance="@style/TextAppearance.Nimipaivat.GroupHeader" />
+
+            <LinearLayout
+                android:id="@+id/style_row_basic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/style_group_glass"
+                android:textAppearance="@style/TextAppearance.Nimipaivat.GroupHeader" />
+
+            <LinearLayout
+                android:id="@+id/style_row_glass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/style_group_pastel"
+                android:textAppearance="@style/TextAppearance.Nimipaivat.GroupHeader" />
+
+            <LinearLayout
+                android:id="@+id/style_row_pastel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal" />
+
+            <!-- Only while a pastel style is selected; animated in/out. -->
+            <LinearLayout
+                android:id="@+id/pastel_finish_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/settings_group_background"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pastel_finish_label"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/pastel_finish_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_finish_opaque"
+                        style="@style/Widget.Nimipaivat.SegmentedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/pastel_finish_opaque" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_finish_glass"
+                        style="@style/Widget.Nimipaivat.SegmentedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/pastel_finish_glass" />
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            </LinearLayout>
+
+            <!-- Muoto -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:accessibilityHeading="true"
+                android:text="@string/shape_label"
+                android:textAppearance="@style/TextAppearance.Nimipaivat.SectionHeader" />
+
+            <LinearLayout
+                android:id="@+id/wavy_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/settings_group_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="72dp"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/wavy_edge_label"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/wavy_edge_summary"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                </LinearLayout>
+
+                <!-- The whole row toggles it; the switch itself is not focusable
+                     separately so TalkBack reads row + state once. -->
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_wavy_edge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:importantForAccessibility="no" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/settings_scope_hint"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Primary action, pinned above the navigation bar. -->
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/bottom_divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
+
+    <FrameLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/save_button"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/add_widget_button"
+            android:textAppearance="?attr/textAppearanceTitleSmall" />
+
+    </FrameLayout>
+
+</LinearLayout>

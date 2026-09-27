@@ -6,22 +6,46 @@
     <string name="tomorrow_label">Huomenna</string>
     <string name="no_names">Ei nimipäiviä</string>
     <string name="week_abbr">vko</string>
-    <string name="config_title">Nimipäivät — Asetukset</string>
+
+    <!-- Settings screen (WidgetConfigActivity) -->
+    <string name="config_title">Nimipäivät</string>
+    <string name="config_subtitle">Widgetin asetukset</string>
+    <string name="config_cancel">Peruuta</string>
+    <string name="preview_label">Esikatselu</string>
+    <string name="preview_backdrop_light">Vaalea</string>
+    <string name="preview_backdrop_dark">Tumma</string>
+    <string name="preview_backdrop_description">Esikatselun taustakuva</string>
+    <string name="preview_description">Widgetin esikatselu valituilla asetuksilla</string>
+
     <string name="language_label">Kalenteri</string>
     <string name="language_finnish">Suomalainen</string>
     <string name="language_swedish">Suomenruotsalainen</string>
-    <string name="save_button">Tallenna</string>
-    <string name="style_label">Tyyli</string>
+
+    <string name="appearance_label">Ulkoasu</string>
+    <string name="style_group_basic">Perus</string>
+    <string name="style_group_glass">Lasi</string>
+    <string name="style_group_pastel">Pastelli</string>
     <string name="style_dark">Tumma</string>
     <string name="style_material_you">Material You</string>
-    <string name="style_glass_light">Lasi (musta teksti)</string>
-    <string name="style_glass_dark">Lasi tumma (valkoinen teksti)</string>
+    <string name="style_glass_light">Lasi vaalea</string>
+    <string name="style_glass_light_hint">Tumma teksti</string>
+    <string name="style_glass_dark">Lasi tumma</string>
+    <string name="style_glass_dark_hint">Vaalea teksti</string>
     <string name="style_paper">Paperi</string>
     <string name="style_powder_puff">Powder puff</string>
     <string name="style_lemondrop">Lemondrop</string>
     <string name="style_pinkie_promise">Pinkie promise</string>
+    <!-- TalkBack label of a style card, e.g. "Tyyli: Lasi vaalea, Tumma teksti" -->
+    <string name="style_card_description">Tyyli: %1$s</string>
     <string name="pastel_finish_label">Pastellin pinta</string>
     <string name="pastel_finish_opaque">Peittävä</string>
     <string name="pastel_finish_glass">Lasi</string>
+
+    <string name="shape_label">Muoto</string>
     <string name="wavy_edge_label">Aaltoileva reuna</string>
+    <string name="wavy_edge_summary">Pehmeä aaltoreuna Pixel-widgettien tyyliin</string>
+
+    <string name="settings_scope_hint">Asetukset koskevat kaikkia Nimipäivät-widgettejäsi.</string>
+    <string name="add_widget_button">Lisää widget</string>
+    <string name="save_button">Tallenna</string>
 </resources>

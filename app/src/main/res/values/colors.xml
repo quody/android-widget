@@ -1,4 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#2196F3</color>
+
+    <!-- Settings screen: Material 3 scheme from the launcher blue (#2196F3).
+         On Android 12+ DynamicColors replaces it with the wallpaper colours.
+         Night values in values-night/colors.xml. -->
+    <color name="md_primary">#FF0061A4</color>
+    <color name="md_on_primary">#FFFFFFFF</color>
+    <color name="md_primary_container">#FFD1E4FF</color>
+    <color name="md_on_primary_container">#FF001D36</color>
+    <color name="md_secondary">#FF535F70</color>
+    <color name="md_on_secondary">#FFFFFFFF</color>
+    <color name="md_secondary_container">#FFD7E3F7</color>
+    <color name="md_on_secondary_container">#FF101C2B</color>
+    <color name="md_surface">#FFF8F9FF</color>
+    <color name="md_on_surface">#FF191C20</color>
+    <color name="md_on_surface_variant">#FF43474E</color>
+    <color name="md_outline">#FF73777F</color>
+    <color name="md_outline_variant">#FFC3C7CF</color>
+    <color name="md_surface_container_lowest">#FFFFFFFF</color>
+    <color name="md_surface_container_low">#FFF2F3FA</color>
+    <color name="md_surface_container">#FFECEEF4</color>
+    <color name="md_surface_container_high">#FFE6E8EE</color>
+    <color name="md_surface_container_highest">#FFE1E2E8</color>
 </resources>

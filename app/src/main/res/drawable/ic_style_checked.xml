@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Selected style badge: primary disc with a check, ringed in the surface colour
+     so it stays readable on top of any swatch. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="?attr/colorSurface"
+        android:pathData="M12,0a12,12 0,1 1,0 24a12,12 0,1 1,0 -24z" />
+    <path
+        android:fillColor="?attr/colorPrimary"
+        android:pathData="M12,2a10,10 0,1 1,0 20a10,10 0,1 1,0 -20z" />
+    <path
+        android:fillColor="?attr/colorOnPrimary"
+        android:pathData="M10,15.17L6.83,12l-1.06,1.06L10,17.3l8.24,-8.24 -1.06,-1.06z" />
+</vector>

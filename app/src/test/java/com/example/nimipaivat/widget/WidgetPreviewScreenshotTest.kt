@@ -16,7 +16,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.FrameLayout
-import android.widget.RadioGroup
+import android.widget.CompoundButton
+import android.widget.TextView
+import androidx.core.widget.NestedScrollView
+import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.card.MaterialCardView
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.preferencesOf
@@ -230,48 +234,158 @@ class WidgetPreviewScreenshotTest {
         assertEquals(6 * sizes.size * AUTOFIT_CASES.size, rendered)
     }
 
-    /** The config screen with a pastel style selected shows the glass/opaque toggle. */
+    /**
+     * The settings screen: live preview, segmented calendar, style cards with the
+     * pastel finish revealed under the pastel group, wavy edge row and the
+     * primary action. Files: `config_*.png`.
+     */
     @Test
-    @Config(qualifiers = "w411dp-h840dp-xxhdpi")
+    @Config(qualifiers = "w411dp-h891dp-xxhdpi")
     fun renderConfigScreen() {
+        val zone = ZoneId.of("Europe/Helsinki")
+        DateUtils.clock = Clock.fixed(
+            LocalDate.of(2026, 6, 24).atTime(12, 0).atZone(zone).toInstant(), zone
+        )
+        // The app's own palette (values/colors.xml), not Robolectric's stand-in wallpaper colours.
+        WidgetConfigActivity.useDynamicColors = false
+
+        // (a) light theme, Paperi
+        withConfigScreen(WidgetSettings(style = WidgetStyle.PAPER)) { activity ->
+            assertEquals(View.GONE, activity.findViewById<View>(R.id.pastel_finish_container).visibility)
+            assertTrue(activity.findViewById<MaterialCardView>(styleCardId(activity, WidgetStyle.PAPER)).isChecked)
+            assertEquals(
+                activity.getString(R.string.add_widget_button),
+                activity.findViewById<TextView>(R.id.save_button).text.toString()
+            )
+            writeWindow(activity, "config_light_paper.png")
+
+            // Picking a pastel reveals the finish choice right under the pastel cards.
+            activity.findViewById<View>(styleCardId(activity, WidgetStyle.LEMONDROP)).performClick()
+            awaitPreview(activity)
+            assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.pastel_finish_container).visibility)
+            // ... and a basic style hides it again.
+            activity.findViewById<View>(styleCardId(activity, WidgetStyle.DARK)).performClick()
+            awaitPreview(activity)
+            assertEquals(View.GONE, activity.findViewById<View>(R.id.pastel_finish_container).visibility)
+        }
+
+        // (b) light theme, Pinkie promise + Lasi + wavy edge
+        val pinkie = WidgetSettings(style = WidgetStyle.PINKIE_PROMISE, pastelGlass = true, wavyEdge = true)
+        withConfigScreen(pinkie) { activity ->
+            assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.pastel_finish_container).visibility)
+            assertEquals(
+                R.id.button_finish_glass,
+                activity.findViewById<MaterialButtonToggleGroup>(R.id.pastel_finish_group).checkedButtonId
+            )
+            assertTrue(activity.findViewById<CompoundButton>(R.id.switch_wavy_edge).isChecked)
+            writeWindow(activity, "config_light_pinkie_glass_wavy.png")
+            // Pastel group scrolled into view, finish choice visible under it.
+            activity.findViewById<NestedScrollView>(R.id.settings_scroll).scrollTo(0, 10_000)
+            writeWindow(activity, "config_light_pinkie_glass_wavy_scrolled.png")
+        }
+
+        // (c) dark theme, Tumma (+ Suomenruotsalainen calendar)
+        RuntimeEnvironment.setQualifiers("+night")
+        try {
+            withConfigScreen(WidgetSettings(style = WidgetStyle.DARK, swedish = true)) { activity ->
+                assertEquals(
+                    R.id.button_swedish,
+                    activity.findViewById<MaterialButtonToggleGroup>(R.id.calendar_group).checkedButtonId
+                )
+                assertEquals(
+                    R.id.backdrop_dark,
+                    activity.findViewById<MaterialButtonToggleGroup>(R.id.backdrop_group).checkedButtonId
+                )
+                writeWindow(activity, "config_dark_tumma.png")
+            }
+            withConfigScreen(WidgetSettings(style = WidgetStyle.GLASS_DARK)) { activity ->
+                writeWindow(activity, "config_dark_glass_dark.png")
+            }
+            withConfigScreen(pinkie) { activity -> writeWindow(activity, "config_dark_pinkie_glass_wavy.png") }
+        } finally {
+            RuntimeEnvironment.setQualifiers("+notnight")
+        }
+
+        // (d) the whole screen at once: a window tall enough for all of the settings.
+        var fullHeightDp = 0
+        withConfigScreen(pinkie) { activity ->
+            val density = activity.resources.displayMetrics.density
+            val scroll = activity.findViewById<NestedScrollView>(R.id.settings_scroll)
+            val content = activity.findViewById<View>(R.id.settings_content)
+            val decor = activity.window.decorView
+            fullHeightDp = ((decor.height - scroll.height + content.height) / density).toInt() + 1
+        }
+        RuntimeEnvironment.setQualifiers("+h${fullHeightDp}dp")
+        try {
+            withConfigScreen(pinkie) { activity ->
+                val scroll = activity.findViewById<NestedScrollView>(R.id.settings_scroll)
+                assertTrue(!scroll.canScrollVertically(1))
+                writeWindow(activity, "config_full_height.png")
+            }
+        } finally {
+            RuntimeEnvironment.setQualifiers("+h891dp")
+        }
+
+        WidgetConfigActivity.useDynamicColors = true
+        runBlocking {
+            val context = RuntimeEnvironment.getApplication()
+            WidgetPreferences.setSwedish(context, false)
+            WidgetPreferences.setStyle(context, WidgetStyle.MATERIAL_YOU)
+            WidgetPreferences.setPastelGlass(context, false)
+            WidgetPreferences.setWavyEdge(context, false)
+        }
+    }
+
+    /** Saves [settings], opens the config screen for a new widget and waits for its preview. */
+    private fun withConfigScreen(settings: WidgetSettings, block: (WidgetConfigActivity) -> Unit) {
         val context = RuntimeEnvironment.getApplication()
         runBlocking {
-            WidgetPreferences.setStyle(context, WidgetStyle.LEMONDROP)
-            WidgetPreferences.setPastelGlass(context, true)
-            WidgetPreferences.setWavyEdge(context, true)
+            WidgetPreferences.setSwedish(context, settings.swedish)
+            WidgetPreferences.setStyle(context, settings.style)
+            WidgetPreferences.setPastelGlass(context, settings.pastelGlass)
+            WidgetPreferences.setWavyEdge(context, settings.wavyEdge)
         }
         val intent = Intent(context, WidgetConfigActivity::class.java)
             .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, 42)
         val controller = Robolectric.buildActivity(WidgetConfigActivity::class.java, intent)
         val activity = controller.setup().get()
-        // The activity loads its preferences in a coroutine that hops to DataStore's
-        // IO thread; keep draining the main looper until the switch reflects them.
-        val wavySwitch = activity.findViewById<android.widget.CompoundButton>(R.id.switch_wavy_edge)
-        repeat(50) {
+        awaitPreview(activity)
+        assertTrue(activity.findViewById<View>(R.id.save_button).isEnabled)
+        try {
+            block(activity)
+        } finally {
+            controller.pause().stop().destroy()
+        }
+    }
+
+    /**
+     * The activity loads its preferences (DataStore IO thread) and composes the
+     * preview on a background dispatcher; drain the main looper until the latest
+     * preview is on screen.
+     */
+    private fun awaitPreview(activity: WidgetConfigActivity) {
+        val start = activity.previewRenderCount
+        var stable = 0
+        repeat(400) {
             shadowOf(Looper.getMainLooper()).idle()
-            if (wavySwitch.isChecked) return@repeat
-            Thread.sleep(20)
+            if (activity.previewRenderCount > start) {
+                if (++stable >= 5) return
+            }
+            Thread.sleep(15)
         }
+        check(activity.previewRenderCount > start) { "Preview never rendered" }
+    }
 
-        val finish = activity.findViewById<View>(R.id.pastel_finish_container)
-        assertEquals(View.VISIBLE, finish.visibility)
-        assertEquals(
-            R.id.radio_finish_glass,
-            activity.findViewById<RadioGroup>(R.id.pastel_finish_group).checkedRadioButtonId
-        )
-        assertTrue(activity.findViewById<android.widget.CompoundButton>(R.id.switch_wavy_edge).isChecked)
+    private fun styleCardId(activity: WidgetConfigActivity, style: WidgetStyle): Int {
+        // Cards are created in code; tag lookups keep the test independent of order.
+        val card = activity.window.decorView.findViewWithTag<View>(style)
+        if (card.id == View.NO_ID) card.id = View.generateViewId()
+        return card.id
+    }
 
-        outDir?.let { writePng(captureWindow(activity), File(it, "config_screen.png")) }
-
-        // Non-pastel style: the toggle hides.
-        activity.findViewById<RadioGroup>(R.id.style_radio_group).check(R.id.radio_style_dark)
-        shadowOf(Looper.getMainLooper()).idle()
-        assertEquals(View.GONE, finish.visibility)
-        controller.pause().stop().destroy()
-        runBlocking {
-            WidgetPreferences.setPastelGlass(context, false)
-            WidgetPreferences.setWavyEdge(context, false)
-        }
+    private fun writeWindow(activity: Activity, name: String) {
+        val bitmap = captureWindow(activity)
+        outDir?.let { writePng(bitmap, File(it, name)) }
     }
 
     private data class Shot(val label: String, val size: DpSize, val flipped: Boolean)

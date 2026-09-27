@@ -65,6 +65,8 @@ dependencies {
     implementation(libs.androidx.glance.material3)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.gson)
+    // Material 3 Views for the widget settings screen (segmented buttons, cards, switch).
+    implementation(libs.material)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

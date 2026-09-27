@@ -132,7 +132,7 @@ gradlew.bat testDebugUnitTest      # Windows
 
 ### Widget style previews (no emulator needed)
 
-`WidgetPreviewScreenshotTest` renders the real widget (every style, names and etymology screen, small/medium/large, plus `*_etymology9.png` for a 9-name day whose etymology list must scroll, and `autofit_*.png`: real 1/2/9/10/13-name days at several sizes, also at 1.3x font scale, showing the adaptive size of today's names) with Robolectric native graphics. It also renders the pastel styles' glass variant (`*_glass_*`), every style with the wavy edge on (`*_wavy_*`), the glass styles on a dark wallpaper (`*_darkwp_*`) and the config screen with a pastel style selected (`config_screen.png`). Pass an absolute output directory to get PNGs:
+`WidgetPreviewScreenshotTest` renders the real widget (every style, names and etymology screen, small/medium/large, plus `*_etymology9.png` for a 9-name day whose etymology list must scroll, and `autofit_*.png`: real 1/2/9/10/13-name days at several sizes, also at 1.3x font scale, showing the adaptive size of today's names) with Robolectric native graphics. It also renders the pastel styles' glass variant (`*_glass_*`), every style with the wavy edge on (`*_wavy_*`), the glass styles on a dark wallpaper (`*_darkwp_*`) and the settings screen with its live preview (`config_*.png`: light/dark theme, a pastel glass style with the finish choice shown, and `config_full_height.png` with every setting at once). Pass an absolute output directory to get PNGs:
 
 ```bash
 ./gradlew :app:testDebugUnitTest --tests '*WidgetPreviewScreenshotTest' -PwidgetPreviewDir="$PWD/build/widget-previews"
