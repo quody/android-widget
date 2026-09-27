@@ -1,6 +1,8 @@
 package com.example.nimipaivat.widget
 
 import android.app.Activity
+import android.appwidget.AppWidgetHostView
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
@@ -16,7 +18,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.preferencesOf
 import androidx.glance.ExperimentalGlanceApi
+import androidx.glance.GlanceId
+import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.compose
+import androidx.glance.appwidget.provideContent
+import com.example.nimipaivat.data.EtymologyRepository
 import com.example.nimipaivat.util.DateUtils
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -74,8 +80,16 @@ class WidgetPreviewScreenshotTest {
         val shots = listOf(
             Shot("medium", DpSize(250.dp, 120.dp), flipped = false),
             Shot("medium", DpSize(250.dp, 120.dp), flipped = true),
+            // The flip state survives resizing, so the etymology screen can show at small too.
             Shot("small", DpSize(180.dp, 70.dp), flipped = false),
+            Shot("small", DpSize(180.dp, 70.dp), flipped = true),
             Shot("large", DpSize(250.dp, 190.dp), flipped = false),
+            Shot("large", DpSize(250.dp, 190.dp), flipped = true),
+        )
+        // Real days can have up to ~9 names; the etymology list must scroll, not clip.
+        val manyNameShots = listOf(
+            Shot("medium", DpSize(250.dp, 120.dp), flipped = true),
+            Shot("small", DpSize(180.dp, 70.dp), flipped = true),
             Shot("large", DpSize(250.dp, 190.dp), flipped = true),
         )
 
@@ -97,11 +111,48 @@ class WidgetPreviewScreenshotTest {
                 outDir?.let { writePng(bitmap, File(it, name)) }
                 rendered++
             }
+            for (shot in manyNameShots) {
+                val remoteViews = runBlocking {
+                    ManyNamesWidget(resolveStyle(style)).compose(
+                        context = context,
+                        options = Bundle.EMPTY,
+                        size = shot.size,
+                    )
+                }
+                val bitmap = capture(shot.size) { parent -> remoteViews.apply(context, parent) }
+                val name = "${style.name.lowercase()}_${shot.label}_etymology9.png"
+                outDir?.let { writePng(bitmap, File(it, name)) }
+                rendered++
+            }
         }
-        assertTrue(rendered == WidgetStyle.entries.size * shots.size)
+        assertTrue(rendered == WidgetStyle.entries.size * (shots.size + manyNameShots.size))
     }
 
     private data class Shot(val label: String, val size: DpSize, val flipped: Boolean)
+
+    /** The flipped widget for a synthetic 9-name day, with real etymologies. */
+    private class ManyNamesWidget(private val styleColors: WidgetStyleColors) : GlanceAppWidget() {
+        override suspend fun provideGlance(context: Context, id: GlanceId) {
+            val etymologies = EtymologyRepository(context)
+            provideContent {
+                WidgetLayout(
+                    isFlipped = true,
+                    dateText = "",
+                    todayNames = MANY_NAMES,
+                    tomorrowNames = emptyList(),
+                    styleColors = styleColors,
+                    etymologyOf = etymologies::getEtymology
+                )
+            }
+        }
+    }
+
+    private companion object {
+        val MANY_NAMES = listOf(
+            "Johannes", "Juhani", "Toni", "Anton", "Anttoni",
+            "Heikki", "Henri", "Henrik", "Aune"
+        )
+    }
 
     /** Puts the inflated widget on a soft "wallpaper" and captures it via PixelCopy. */
     private fun capture(size: DpSize, inflate: (ViewGroup) -> View): Bitmap {
@@ -124,7 +175,9 @@ class WidgetPreviewScreenshotTest {
             )
             setPadding(margin, margin, margin, margin)
         }
-        val host = FrameLayout(activity)
+        // RemoteViews only binds collection adapters (Glance LazyColumn) when the
+        // parent is an AppWidgetHostView, like in a real launcher.
+        val host = AppWidgetHostView(activity)
         wallpaper.addView(host, FrameLayout.LayoutParams(widthPx, heightPx))
         host.addView(
             inflate(host),
