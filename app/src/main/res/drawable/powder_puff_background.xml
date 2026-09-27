@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Powder puff: powder blue to periwinkle cutesy pastel card with a periwinkle border. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Layer 0: Soft pastel fill, powder blue to periwinkle -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#FFBFDDF0"
+                android:endColor="#FFD3DDFB"
+                android:angle="315" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+
+    <!-- Layer 1: Decorative soft blob, top-end corner -->
+    <item
+        android:width="72dp"
+        android:height="52dp"
+        android:gravity="top|end"
+        android:top="4dp"
+        android:right="4dp">
+        <shape android:shape="oval">
+            <solid android:color="#80A9C8F5" />
+        </shape>
+    </item>
+
+    <!-- Layer 2: Decorative soft blob, bottom-start corner -->
+    <item
+        android:width="60dp"
+        android:height="44dp"
+        android:gravity="bottom|start"
+        android:bottom="4dp"
+        android:left="4dp">
+        <shape android:shape="oval">
+            <solid android:color="#80C4CCF7" />
+        </shape>
+    </item>
+
+    <!-- Layer 3: Lighter translucent white inner panel (all text sits on this) -->
+    <item
+        android:left="8dp"
+        android:top="8dp"
+        android:right="8dp"
+        android:bottom="8dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#A6FFFFFF" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+    <!-- Layer 4: Thick soft outer border, drawn last so it frames everything -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="4dp"
+                android:color="#FF8AA4E8" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+
+</layer-list>

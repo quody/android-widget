@@ -55,11 +55,11 @@ fun WidgetContent(context: Context) {
     val dateText = DateUtils.formatDateFinnish()
 
     GlanceTheme {
-        val isGlass = styleColors.backgroundDrawableRes != null
+        val hasDrawableBackground = styleColors.backgroundDrawableRes != null
         val bgModifier = GlanceModifier
             .fillMaxSize()
-            .padding(if (isGlass) 16.dp else 12.dp)
-            .cornerRadius(if (isGlass) 24.dp else 16.dp)
+            .padding(if (hasDrawableBackground) 16.dp else 12.dp)
+            .cornerRadius(if (hasDrawableBackground) 24.dp else 16.dp)
             .let { mod ->
                 when {
                     styleColors.isMaterialYou -> mod.background(GlanceTheme.colors.widgetBackground)

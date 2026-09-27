@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Safe-area (status bar / cutout / nav bar) padding is added to config_root
+     at runtime from WindowInsets; clipToPadding=false lets content scroll
+     edge to edge underneath the bars. -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/config_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -98,6 +103,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/style_paper"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_powder_puff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_powder_puff"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_lemondrop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_lemondrop"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radio_style_pinkie_promise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/style_pinkie_promise"
                 android:padding="8dp" />
 
         </RadioGroup>

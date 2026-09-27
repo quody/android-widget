@@ -17,4 +17,7 @@
     <string name="style_glass_light">Lasi (musta teksti)</string>
     <string name="style_glass_dark">Lasi tumma (valkoinen teksti)</string>
     <string name="style_paper">Paperi</string>
+    <string name="style_powder_puff">Powder puff</string>
+    <string name="style_lemondrop">Lemondrop</string>
+    <string name="style_pinkie_promise">Pinkie promise</string>
 </resources>
