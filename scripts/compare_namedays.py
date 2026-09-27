@@ -4,7 +4,7 @@
 Usage:
     python3 scripts/compare_namedays.py
 
-Reads app/src/main/assets/namedays.json and scripts/namedays_wikipedia.json
+Reads app/src/main/assets/namedays.json and scripts/output/namedays.json
 and writes a Markdown report to scripts/namedays_comparison.md.
 """
 
@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 APP_FILE = ROOT / "app/src/main/assets/namedays.json"
-WIKI_FILE = ROOT / "scripts/namedays_wikipedia.json"
+WIKI_FILE = ROOT / "scripts/output/namedays.json"
 REPORT_FILE = ROOT / "scripts/namedays_comparison.md"
 
 LANGS = {"fi": "Finnish", "sv": "Swedish"}

@@ -17,7 +17,7 @@ Usage:
 
 Outputs (in scripts/):
     wikipedia_links.txt       MM-DD <tab> page URL, one per day
-    namedays_wikipedia.json   {"MM-DD": {"fi": [...], "sv": [...]}}
+    output/namedays.json      {"MM-DD": {"fi": [...], "sv": [...]}}
     .wikicache/               raw wikitext cache (git-ignored)
 """
 
@@ -34,7 +34,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 CACHE_DIR = SCRIPT_DIR / ".wikicache"
 LINKS_FILE = SCRIPT_DIR / "wikipedia_links.txt"
-OUTPUT_FILE = SCRIPT_DIR / "namedays_wikipedia.json"
+OUTPUT_FILE = SCRIPT_DIR / "output" / "namedays.json"
 
 USER_AGENT = "nimipaivat-widget-namedays/1.0 (https://github.com/quody/android-widget)"
 
