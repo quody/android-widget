@@ -8,7 +8,10 @@ enum class WidgetStyle(val displayNameKey: String) {
     MATERIAL_YOU("style_material_you"),
     GLASS_LIGHT("style_glass_light"),
     GLASS_DARK("style_glass_dark"),
-    PAPER("style_paper");
+    PAPER("style_paper"),
+    POWDER_PUFF("style_powder_puff"),
+    LEMONDROP("style_lemondrop"),
+    PINKIE_PROMISE("style_pinkie_promise");
 }
 
 data class WidgetStyleColors(
@@ -54,6 +57,29 @@ fun resolveStyle(style: WidgetStyle): WidgetStyleColors {
             primaryTextColor = Color(0xFF5D4037),
             secondaryTextColor = Color(0xFF795548),
             accentColor = Color(0xFF8D6E63)
+        )
+        // Cutesy pastel styles: text always sits on the drawable's light
+        // translucent-white inner panel, so dark text keeps >= 4.5:1 contrast.
+        WidgetStyle.POWDER_PUFF -> WidgetStyleColors(
+            backgroundColor = null,
+            primaryTextColor = Color(0xFF1F3A68),
+            secondaryTextColor = Color(0xFF3D5A8A),
+            accentColor = Color(0xFF3F51B5),
+            backgroundDrawableRes = R.drawable.powder_puff_background
+        )
+        WidgetStyle.LEMONDROP -> WidgetStyleColors(
+            backgroundColor = null,
+            primaryTextColor = Color(0xFF6B3A12),
+            secondaryTextColor = Color(0xFF8A4B1C),
+            accentColor = Color(0xFFB4400E),
+            backgroundDrawableRes = R.drawable.lemondrop_background
+        )
+        WidgetStyle.PINKIE_PROMISE -> WidgetStyleColors(
+            backgroundColor = null,
+            primaryTextColor = Color(0xFF7A1F5C),
+            secondaryTextColor = Color(0xFF8E3A6E),
+            accentColor = Color(0xFFA62A6E),
+            backgroundDrawableRes = R.drawable.pinkie_promise_background
         )
     }
 }

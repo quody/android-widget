@@ -4,9 +4,12 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -25,6 +28,9 @@ class WidgetConfigActivity : Activity() {
         R.id.radio_style_glass_light to WidgetStyle.GLASS_LIGHT,
         R.id.radio_style_glass_dark to WidgetStyle.GLASS_DARK,
         R.id.radio_style_paper to WidgetStyle.PAPER,
+        R.id.radio_style_powder_puff to WidgetStyle.POWDER_PUFF,
+        R.id.radio_style_lemondrop to WidgetStyle.LEMONDROP,
+        R.id.radio_style_pinkie_promise to WidgetStyle.PINKIE_PROMISE,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +51,7 @@ class WidgetConfigActivity : Activity() {
         }
 
         setContentView(R.layout.activity_widget_config)
+        applySafeAreaInsets(findViewById(R.id.config_root))
 
         val radioFinnish = findViewById<RadioButton>(R.id.radio_finnish)
         val radioSwedish = findViewById<RadioButton>(R.id.radio_swedish)
@@ -90,6 +97,31 @@ class WidgetConfigActivity : Activity() {
                 setResult(RESULT_OK, resultValue)
                 finish()
             }
+        }
+    }
+
+    /**
+     * Keeps the settings content out from under the status bar, camera cutout and
+     * navigation bar. Android 15+ enforces edge-to-edge for apps targeting SDK 35,
+     * so the window no longer insets content for us. On older versions the decor
+     * view already consumes these insets and the values here are simply zero.
+     */
+    private fun applySafeAreaInsets(root: View) {
+        val basePaddingLeft = root.paddingLeft
+        val basePaddingTop = root.paddingTop
+        val basePaddingRight = root.paddingRight
+        val basePaddingBottom = root.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->
+            val insets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            view.setPadding(
+                basePaddingLeft + insets.left,
+                basePaddingTop + insets.top,
+                basePaddingRight + insets.right,
+                basePaddingBottom + insets.bottom
+            )
+            WindowInsetsCompat.CONSUMED
         }
     }
 }

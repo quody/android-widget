@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pinkie promise: pink to lavender cutesy pastel card with a coral-pink border. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Layer 0: Soft pastel fill, pink to lavender -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#FFF9C6D3"
+                android:endColor="#FFE7C9F5"
+                android:angle="315" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+
+    <!-- Layer 1: Decorative soft blob, top-end corner -->
+    <item
+        android:width="72dp"
+        android:height="52dp"
+        android:gravity="top|end"
+        android:top="4dp"
+        android:right="4dp">
+        <shape android:shape="oval">
+            <solid android:color="#80F7A8C4" />
+        </shape>
+    </item>
+
+    <!-- Layer 2: Decorative soft blob, bottom-start corner -->
+    <item
+        android:width="60dp"
+        android:height="44dp"
+        android:gravity="bottom|start"
+        android:bottom="4dp"
+        android:left="4dp">
+        <shape android:shape="oval">
+            <solid android:color="#80D9B8F0" />
+        </shape>
+    </item>
+
+    <!-- Layer 3: Lighter translucent white inner panel (all text sits on this) -->
+    <item
+        android:left="8dp"
+        android:top="8dp"
+        android:right="8dp"
+        android:bottom="8dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#99FFFFFF" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+    <!-- Layer 4: Thick soft outer border, drawn last so it frames everything -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="4dp"
+                android:color="#FFF48A8A" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+
+</layer-list>
