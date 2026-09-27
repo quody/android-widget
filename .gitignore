@@ -19,3 +19,4 @@ scripts/output/batches/
 scripts/output/.etymologies.lock
 scripts/output/*.tmp
 __pycache__/
+.claude/worktrees/
