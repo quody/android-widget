@@ -3,6 +3,8 @@ package com.example.nimipaivat.widget
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -91,23 +93,11 @@ internal fun WidgetLayout(
 
     GlanceTheme {
         val hasDrawableBackground = styleColors.backgroundDrawableRes != null
-        // Below the large breakpoint the etymology screen trades 2dp of vertical
-        // padding for content. The pastel drawables' inner panel is inset 8dp
-        // (under a 3-4dp border) with 18dp corners, so 12dp still keeps all text
-        // on the panel.
+        val padding = contentPadding(size, hasDrawableBackground, wavyEdge, isFlipped)
         val compactEtymology = isFlipped && size.height < LARGE_MIN_HEIGHT
-        val wavyExtra = if (wavyEdge) WavyEdge.CONTENT_EXTRA_PADDING else 0.dp
-        val basePadding = if (hasDrawableBackground) 14.dp else 10.dp
-        val horizontalPadding = basePadding + wavyExtra
-        // A small (< 100dp) widget has exactly room for two 18sp name lines, so
-        // there the wave only gets extra side padding: the troughs (and the
-        // pastel panel's wavy edge, ~12dp in) still stay clear of the text.
-        val verticalExtra = if (size.height < SMALL_MAX_HEIGHT) 0.dp else wavyExtra
-        val verticalPadding =
-            (if (compactEtymology) basePadding - 2.dp else basePadding) + verticalExtra
         val base = GlanceModifier
             .fillMaxSize()
-            .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+            .padding(horizontal = padding.horizontal, vertical = padding.vertical)
         val bgModifier = if (wavyEdge) {
             // The wavy outline is painted into a bitmap at the widget's real size
             // (SizeMode.Exact); no cornerRadius clip, it would cut the crests.
@@ -155,10 +145,15 @@ internal fun WidgetLayout(
                         .clickable(actionRunCallback<RefreshAction>()),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    when {
-                        size.height < SMALL_MAX_HEIGHT -> SmallWidget(dateText, todayNames, styleColors)
-                        size.height < LARGE_MIN_HEIGHT -> MediumWidget(dateText, todayNames, tomorrowNames, styleColors)
-                        else -> LargeWidget(dateText, todayNames, tomorrowNames, styleColors)
+                    val tier = NamesTier.of(size)
+                    val names = TodayNames(
+                        NameFit.joinNames(todayNames),
+                        fitTodayNames(context, size, padding, tier, todayNames)
+                    )
+                    when (tier) {
+                        NamesTier.SMALL -> SmallWidget(names, styleColors)
+                        NamesTier.MEDIUM -> MediumWidget(names, tomorrowNames, styleColors)
+                        NamesTier.LARGE -> LargeWidget(dateText, names, tomorrowNames, styleColors)
                     }
                 }
             }
@@ -168,6 +163,104 @@ internal fun WidgetLayout(
 
 private val SMALL_MAX_HEIGHT = 100.dp
 private val LARGE_MIN_HEIGHT = 180.dp
+
+internal data class ContentPadding(val horizontal: Dp, val vertical: Dp)
+
+/** Padding between the widget's edge and its content; the name fitting subtracts it too. */
+internal fun contentPadding(
+    size: DpSize,
+    hasDrawableBackground: Boolean,
+    wavyEdge: Boolean,
+    isFlipped: Boolean
+): ContentPadding {
+    // The pastel drawables' inner panel is inset PASTEL_PANEL_INSET_DP (under a
+    // 3-4dp border) with 18dp corners; 14dp keeps all text on the panel.
+    val basePadding = if (hasDrawableBackground) 14.dp else 10.dp
+    // Below the large breakpoint the etymology screen trades 2dp of vertical
+    // padding for content; 12dp still keeps its text on the pastel panel.
+    val compactEtymology = isFlipped && size.height < LARGE_MIN_HEIGHT
+    val wavyExtra = if (wavyEdge) WavyEdge.CONTENT_EXTRA_PADDING else 0.dp
+    // A small (< 100dp) widget gets the wave's extra padding only at the sides:
+    // the troughs (and the pastel panel's wavy edge, ~12dp in) still stay clear
+    // of the text, and the names keep a bit more height.
+    val verticalExtra = if (size.height < SMALL_MAX_HEIGHT) 0.dp else wavyExtra
+    return ContentPadding(
+        horizontal = basePadding + wavyExtra,
+        vertical = (if (compactEtymology) basePadding - 2.dp else basePadding) + verticalExtra
+    )
+}
+
+/**
+ * The names screen's layouts, picked by height. Everything but today's names
+ * has a fixed size (see [NamesScreen]); the names get the rest.
+ */
+internal enum class NamesTier(
+    /** Largest size for today's names, so one or two short names don't look absurd. */
+    val maxNamesSp: Float
+) {
+    SMALL(24f),
+    MEDIUM(28f),
+    LARGE(34f);
+
+    companion object {
+        fun of(size: DpSize) = when {
+            size.height < SMALL_MAX_HEIGHT -> SMALL
+            size.height < LARGE_MIN_HEIGHT -> MEDIUM
+            else -> LARGE
+        }
+    }
+}
+
+/** Fixed sizes of the names screen, shared by the layouts and [fitTodayNames]. */
+private object NamesScreen {
+    const val DATE_SP = 12f
+    val DATE_GAP = 2.dp
+    val TOMORROW_GAP = 6.dp
+    val LINK_GAP = 6.dp
+    const val LINK_SP = 11f
+    const val MEDIUM_TOMORROW_LABEL_SP = 11f
+    const val MEDIUM_TOMORROW_NAMES_SP = 14f
+    const val LARGE_TOMORROW_LABEL_SP = 12f
+    const val LARGE_TOMORROW_NAMES_SP = 13f
+    val ETYMOLOGY_LINK_GAP = 8.dp
+}
+
+private class TodayNames(val text: String, val fit: NameFit.Result)
+
+/**
+ * Largest font size that shows all of [todayNames] in the space the [tier]'s
+ * layout leaves them: the widget size minus [padding] and the other rows.
+ */
+internal fun fitTodayNames(
+    context: Context,
+    size: DpSize,
+    padding: ContentPadding,
+    tier: NamesTier,
+    todayNames: List<String>
+): NameFit.Result {
+    val density = context.resources.displayMetrics.density
+    val regular = NameFit.TextMeasurer(context.resources, bold = false)
+    fun line(sp: Float) = regular.lineHeight(sp)
+    fun px(dp: Dp) = dp.value * density
+    val others = with(NamesScreen) {
+        when (tier) {
+            NamesTier.SMALL -> 0f
+            // Names, gap, "Huomenna: ..." row with the Etymologia link.
+            NamesTier.MEDIUM -> px(TOMORROW_GAP) +
+                maxOf(line(MEDIUM_TOMORROW_LABEL_SP), line(MEDIUM_TOMORROW_NAMES_SP), line(LINK_SP))
+            // Date, gap, names, gap, "Huomenna: ..." row, gap, Etymologia link.
+            NamesTier.LARGE -> line(DATE_SP) + px(DATE_GAP) + px(TOMORROW_GAP) +
+                maxOf(line(LARGE_TOMORROW_LABEL_SP), line(LARGE_TOMORROW_NAMES_SP)) +
+                px(LINK_GAP) + line(LINK_SP)
+        }
+    }
+    val width = px(size.width - padding.horizontal * 2)
+    val height = px(size.height - padding.vertical * 2) - others
+    return NameFit.fit(
+        NameFit.joinNames(todayNames), width, height, tier.maxNamesSp,
+        NameFit.TextMeasurer(context.resources, bold = true)
+    )
+}
 
 @Composable
 private fun primaryTextColor(styleColors: WidgetStyleColors) =
@@ -185,39 +278,38 @@ private fun accentColor(styleColors: WidgetStyleColors) =
     else ColorProvider(styleColors.accentColor!!, styleColors.accentColor!!)
 
 @Composable
-private fun SmallWidget(dateText: String, names: List<String>, styleColors: WidgetStyleColors) {
+private fun TodayNamesText(names: TodayNames, styleColors: WidgetStyleColors) {
     Text(
-        text = names.joinToString(", ").ifEmpty { "\u2014" },
+        text = names.text,
         style = TextStyle(
             color = primaryTextColor(styleColors),
-            fontSize = 18.sp,
+            fontSize = names.fit.sizeSp.sp,
             fontWeight = FontWeight.Bold
         ),
-        maxLines = 2
+        // Int.MAX_VALUE (no ellipsis) unless not even the smallest size fits.
+        maxLines = names.fit.maxLines
     )
 }
 
 @Composable
+private fun SmallWidget(names: TodayNames, styleColors: WidgetStyleColors) {
+    TodayNamesText(names, styleColors)
+}
+
+@Composable
 private fun MediumWidget(
-    dateText: String,
-    todayNames: List<String>,
+    names: TodayNames,
     tomorrowNames: List<String>,
     styleColors: WidgetStyleColors
 ) {
-    Text(
-        text = todayNames.joinToString(", ").ifEmpty { "\u2014" },
-        style = TextStyle(
-            color = primaryTextColor(styleColors),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        ),
-        maxLines = 2
-    )
-    // "Huomenna: ..." and the Etymologia link share one row, so the bigger
-    // names still fit a ~120dp tall widget (also with the wavy edge's padding).
-    Spacer(modifier = GlanceModifier.height(6.dp))
+    TodayNamesText(names, styleColors)
+    // "Huomenna: ..." and the Etymologia link share one row, so the names get
+    // more of a ~120dp tall widget.
+    Spacer(modifier = GlanceModifier.height(NamesScreen.TOMORROW_GAP))
     TomorrowRow(
-        tomorrowNames, styleColors, labelSize = 11.sp, namesSize = 14.sp,
+        tomorrowNames, styleColors,
+        labelSize = NamesScreen.MEDIUM_TOMORROW_LABEL_SP.sp,
+        namesSize = NamesScreen.MEDIUM_TOMORROW_NAMES_SP.sp,
         trailingEtymologyLink = true
     )
 }
@@ -239,7 +331,8 @@ private fun TomorrowRow(
             style = TextStyle(
                 color = secondaryTextColor(styleColors),
                 fontSize = labelSize
-            )
+            ),
+            maxLines = 1
         )
         Text(
             text = tomorrowNames.joinToString(", ").ifEmpty { "\u2014" },
@@ -251,7 +344,7 @@ private fun TomorrowRow(
             modifier = if (trailingEtymologyLink) GlanceModifier.defaultWeight() else GlanceModifier
         )
         if (trailingEtymologyLink) {
-            Spacer(modifier = GlanceModifier.width(8.dp))
+            Spacer(modifier = GlanceModifier.width(NamesScreen.ETYMOLOGY_LINK_GAP))
             EtymologyButton(styleColors)
         }
     }
@@ -260,7 +353,7 @@ private fun TomorrowRow(
 @Composable
 private fun LargeWidget(
     dateText: String,
-    todayNames: List<String>,
+    names: TodayNames,
     tomorrowNames: List<String>,
     styleColors: WidgetStyleColors
 ) {
@@ -270,22 +363,19 @@ private fun LargeWidget(
         text = "$dayOfWeek $dateText",
         style = TextStyle(
             color = secondaryTextColor(styleColors),
-            fontSize = 12.sp
-        )
-    )
-    Spacer(modifier = GlanceModifier.height(2.dp))
-    Text(
-        text = todayNames.joinToString(", ").ifEmpty { "\u2014" },
-        style = TextStyle(
-            color = primaryTextColor(styleColors),
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = NamesScreen.DATE_SP.sp
         ),
-        maxLines = 2
+        maxLines = 1
     )
-    Spacer(modifier = GlanceModifier.height(6.dp))
-    TomorrowRow(tomorrowNames, styleColors, labelSize = 12.sp, namesSize = 13.sp)
-    Spacer(modifier = GlanceModifier.height(6.dp))
+    Spacer(modifier = GlanceModifier.height(NamesScreen.DATE_GAP))
+    TodayNamesText(names, styleColors)
+    Spacer(modifier = GlanceModifier.height(NamesScreen.TOMORROW_GAP))
+    TomorrowRow(
+        tomorrowNames, styleColors,
+        labelSize = NamesScreen.LARGE_TOMORROW_LABEL_SP.sp,
+        namesSize = NamesScreen.LARGE_TOMORROW_NAMES_SP.sp
+    )
+    Spacer(modifier = GlanceModifier.height(NamesScreen.LINK_GAP))
     EtymologyButton(styleColors)
 }
 
@@ -295,8 +385,9 @@ private fun EtymologyButton(styleColors: WidgetStyleColors) {
         text = "Etymologia \u203A",
         style = TextStyle(
             color = accentColor(styleColors),
-            fontSize = 11.sp
+            fontSize = NamesScreen.LINK_SP.sp
         ),
+        maxLines = 1,
         modifier = GlanceModifier.clickable(actionRunCallback<FlipAction>())
     )
 }

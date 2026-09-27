@@ -177,6 +177,59 @@ class WidgetPreviewScreenshotTest {
         )
     }
 
+    /**
+     * Today's names are fitted to the space left for them: real days with 1, 2,
+     * 9, 10 and 13 names at several sizes and styles, plus a 1.3x font scale.
+     * Files: `autofit_<variant>[_fs130]_<size>_<case>.png`.
+     */
+    @OptIn(ExperimentalGlanceApi::class)
+    @Test
+    fun renderAutofitNames() {
+        val zone = ZoneId.of("Europe/Helsinki")
+        DateUtils.clock = Clock.fixed(
+            LocalDate.of(2026, 6, 24).atTime(12, 0).atZone(zone).toInstant(), zone
+        )
+        val context = RuntimeEnvironment.getApplication()
+        val sizes = listOf(
+            "small" to DpSize(180.dp, 70.dp),
+            "medium" to DpSize(250.dp, 120.dp),
+            "large" to DpSize(250.dp, 190.dp),
+            "wide" to DpSize(320.dp, 120.dp),
+        )
+        val variants = listOf(
+            Variant(WidgetStyle.DARK),
+            Variant(WidgetStyle.PAPER),
+            Variant(WidgetStyle.LEMONDROP),
+            Variant(WidgetStyle.PINKIE_PROMISE, glass = true, wavy = true),
+        )
+        var rendered = 0
+        fun render(variant: Variant, fontScaleKey: String) {
+            for ((label, size) in sizes) for ((case, names) in AUTOFIT_CASES) {
+                val widget = NamesWidget(
+                    resolveStyle(variant.style, variant.glass), variant.wavy, names
+                )
+                val remoteViews = runBlocking {
+                    widget.compose(context = context, options = Bundle.EMPTY, size = size)
+                }
+                val bitmap = capture(size, darkWallpaper = false) { parent ->
+                    remoteViews.apply(context, parent)
+                }
+                outDir?.let {
+                    writePng(bitmap, File(it, "autofit_${variant.key}${fontScaleKey}_${label}_$case.png"))
+                }
+                rendered++
+            }
+        }
+        variants.forEach { render(it, "") }
+        RuntimeEnvironment.setFontScale(1.3f)
+        try {
+            listOf(variants[1], variants[3]).forEach { render(it, "_fs130") }
+        } finally {
+            RuntimeEnvironment.setFontScale(1f)
+        }
+        assertEquals(6 * sizes.size * AUTOFIT_CASES.size, rendered)
+    }
+
     /** The config screen with a pastel style selected shows the glass/opaque toggle. */
     @Test
     @Config(qualifiers = "w411dp-h840dp-xxhdpi")
@@ -246,7 +299,45 @@ class WidgetPreviewScreenshotTest {
         }
     }
 
+    /** The names screen for the given names (tomorrow is a fixed 6-name day). */
+    private class NamesWidget(
+        private val styleColors: WidgetStyleColors,
+        private val wavy: Boolean,
+        private val names: List<String>
+    ) : GlanceAppWidget() {
+        override val sizeMode = SizeMode.Exact
+
+        override suspend fun provideGlance(context: Context, id: GlanceId) {
+            provideContent {
+                WidgetLayout(
+                    isFlipped = false,
+                    dateText = DateUtils.formatDateFinnish(),
+                    todayNames = names,
+                    tomorrowNames = listOf("Jorma", "Jarmo", "Jarkko", "Jarno", "Jere", "Jeremias"),
+                    styleColors = styleColors,
+                    etymologyOf = { null },
+                    wavyEdge = wavy
+                )
+            }
+        }
+    }
+
     private companion object {
+        /** Real days: 25.6., 4.1., 24.6. (9), 2.7. (10, "Kukka-Maaria") and 15.8. (13). */
+        val AUTOFIT_CASES = listOf(
+            "n01" to listOf("Uuno"),
+            "n02" to listOf("Tiitus", "Ruut"),
+            "n09" to listOf("Jani", "Janne", "Johannes", "Juha", "Juhana", "Juhani", "Juho", "Jukka", "Jussi"),
+            "n10" to listOf(
+                "Maria", "Maija", "Mari", "Meeri", "Marika", "Maiju", "Riia", "Maaria", "Maikki",
+                "Kukka-Maaria"
+            ),
+            "n13" to listOf(
+                "Marja", "Jaana", "Marjo", "Marita", "Marjatta", "Marjut", "Marianne",
+                "Maritta", "Marjaana", "Marianna", "Marjukka", "Jatta", "Marju"
+            ),
+        )
+
         val MANY_NAMES = listOf(
             "Johannes", "Juhani", "Toni", "Anton", "Anttoni",
             "Heikki", "Henri", "Henrik", "Aune"
