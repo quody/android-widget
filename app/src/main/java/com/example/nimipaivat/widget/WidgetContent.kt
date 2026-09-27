@@ -12,6 +12,8 @@ import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.ImageProvider
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
@@ -35,7 +37,6 @@ import kotlinx.coroutines.runBlocking
 
 @Composable
 fun WidgetContent(context: Context) {
-    val size = LocalSize.current
     val prefs = currentState<Preferences>()
     val isFlipped = prefs[FlipAction.FLIPPED_KEY] ?: false
 
@@ -53,12 +54,45 @@ fun WidgetContent(context: Context) {
     val tomorrowNames = if (useSwedish) tomorrowNameDay.sv else tomorrowNameDay.fi
 
     val dateText = DateUtils.formatDateFinnish()
+    val etymologyRepo = EtymologyRepository(context)
+
+    WidgetLayout(
+        isFlipped = isFlipped,
+        dateText = dateText,
+        todayNames = todayNames,
+        tomorrowNames = tomorrowNames,
+        styleColors = styleColors,
+        etymologyOf = etymologyRepo::getEtymology
+    )
+}
+
+/**
+ * Everything below data loading; split out so the preview test can render the
+ * widget with arbitrary names (e.g. a day with many names).
+ */
+@Composable
+internal fun WidgetLayout(
+    isFlipped: Boolean,
+    dateText: String,
+    todayNames: List<String>,
+    tomorrowNames: List<String>,
+    styleColors: WidgetStyleColors,
+    etymologyOf: (String) -> String?
+) {
+    val size = LocalSize.current
 
     GlanceTheme {
         val hasDrawableBackground = styleColors.backgroundDrawableRes != null
+        // Below the large breakpoint the etymology screen trades 4dp of vertical
+        // padding for content. The pastel drawables' inner panel is inset 8dp
+        // (under a 4dp border), so 12dp still keeps all text on the panel.
+        val compactEtymology = isFlipped && size.height < LARGE_MIN_HEIGHT
+        val horizontalPadding = if (hasDrawableBackground) 16.dp else 12.dp
+        val verticalPadding =
+            if (compactEtymology) horizontalPadding - 4.dp else horizontalPadding
         val bgModifier = GlanceModifier
             .fillMaxSize()
-            .padding(if (hasDrawableBackground) 16.dp else 12.dp)
+            .padding(horizontal = horizontalPadding, vertical = verticalPadding)
             .cornerRadius(if (hasDrawableBackground) 24.dp else 16.dp)
             .let { mod ->
                 when {
@@ -75,8 +109,11 @@ fun WidgetContent(context: Context) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (isFlipped) {
-                val etymologyRepo = EtymologyRepository(context)
-                FlippedWidget(todayNames, etymologyRepo, styleColors)
+                FlippedWidget(
+                    entries = todayNames.map { it to etymologyOf(it) },
+                    styleColors = styleColors,
+                    compact = compactEtymology
+                )
             } else {
                 Column(
                     modifier = GlanceModifier
@@ -86,7 +123,7 @@ fun WidgetContent(context: Context) {
                 ) {
                     when {
                         size.height < 100.dp -> SmallWidget(dateText, todayNames, styleColors)
-                        size.height < 180.dp -> MediumWidget(dateText, todayNames, tomorrowNames, styleColors)
+                        size.height < LARGE_MIN_HEIGHT -> MediumWidget(dateText, todayNames, tomorrowNames, styleColors)
                         else -> LargeWidget(dateText, todayNames, tomorrowNames, styleColors)
                     }
                 }
@@ -94,6 +131,8 @@ fun WidgetContent(context: Context) {
         }
     }
 }
+
+private val LARGE_MIN_HEIGHT = 180.dp
 
 @Composable
 private fun primaryTextColor(styleColors: WidgetStyleColors) =
@@ -222,52 +261,79 @@ private fun EtymologyButton(styleColors: WidgetStyleColors) {
     )
 }
 
+/**
+ * Etymology screen. The back link sits in the header row so it is always
+ * visible, and the etymologies live in a LazyColumn that takes the remaining
+ * height: launchers scroll it when a day has more names than fit (days can
+ * have up to ~9 names) instead of clipping entries and the back link.
+ */
 @Composable
 private fun FlippedWidget(
-    names: List<String>,
-    etymologyRepo: EtymologyRepository,
-    styleColors: WidgetStyleColors
+    entries: List<Pair<String, String?>>,
+    styleColors: WidgetStyleColors,
+    compact: Boolean
 ) {
-    Text(
-        text = "Etymologia",
-        style = TextStyle(
-            color = primaryTextColor(styleColors),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
-        )
-    )
-    Spacer(modifier = GlanceModifier.height(6.dp))
-    names.forEachIndexed { index, name ->
-        val etymology = etymologyRepo.getEtymology(name)
-        Column(modifier = GlanceModifier.fillMaxWidth()) {
+    // Below the large breakpoint everything is a notch tighter, so a typical
+    // two-name day fits a ~120dp tall widget without scrolling.
+    val headerGap = if (compact) 2.dp else 6.dp
+    val itemGap = if (compact) 3.dp else 6.dp
+    val headerSize = if (compact) 11.sp else 12.sp
+    val nameSize = if (compact) 12.sp else 13.sp
+    Column(modifier = GlanceModifier.fillMaxSize()) {
+        Row(
+            modifier = GlanceModifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = name,
+                text = "Etymologia",
                 style = TextStyle(
                     color = primaryTextColor(styleColors),
-                    fontSize = 13.sp,
+                    fontSize = headerSize,
                     fontWeight = FontWeight.Bold
-                )
+                ),
+                maxLines = 1,
+                modifier = GlanceModifier.defaultWeight()
             )
             Text(
-                text = etymology ?: "\u2014",
+                text = "\u2039 Takaisin",
                 style = TextStyle(
-                    color = secondaryTextColor(styleColors),
+                    color = accentColor(styleColors),
                     fontSize = 11.sp
                 ),
-                maxLines = 3
+                maxLines = 1,
+                modifier = GlanceModifier
+                    .padding(start = 8.dp)
+                    .clickable(actionRunCallback<FlipAction>())
             )
         }
-        if (index < names.size - 1) {
-            Spacer(modifier = GlanceModifier.height(6.dp))
+        Spacer(modifier = GlanceModifier.height(headerGap))
+        val items = entries.ifEmpty { listOf("\u2014" to null) }
+        LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
+            itemsIndexed(items) { index, (name, etymology) ->
+                Column(
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                        .padding(top = if (index == 0) 0.dp else itemGap)
+                ) {
+                    Text(
+                        text = name,
+                        style = TextStyle(
+                            color = primaryTextColor(styleColors),
+                            fontSize = nameSize,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        maxLines = 1
+                    )
+                    Text(
+                        text = etymology ?: "\u2014",
+                        style = TextStyle(
+                            color = secondaryTextColor(styleColors),
+                            fontSize = 11.sp
+                        ),
+                        maxLines = 3
+                    )
+                }
+            }
         }
     }
-    Spacer(modifier = GlanceModifier.height(8.dp))
-    Text(
-        text = "\u2039 Takaisin",
-        style = TextStyle(
-            color = accentColor(styleColors),
-            fontSize = 11.sp
-        ),
-        modifier = GlanceModifier.clickable(actionRunCallback<FlipAction>())
-    )
 }

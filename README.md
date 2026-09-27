@@ -132,7 +132,7 @@ gradlew.bat testDebugUnitTest      # Windows
 
 ### Widget style previews (no emulator needed)
 
-`WidgetPreviewScreenshotTest` renders the real widget (every style, names and etymology screen, small/medium/large) with Robolectric native graphics. Pass an absolute output directory to get PNGs:
+`WidgetPreviewScreenshotTest` renders the real widget (every style, names and etymology screen, small/medium/large, plus `*_etymology9.png` for a 9-name day whose etymology list must scroll) with Robolectric native graphics. Pass an absolute output directory to get PNGs:
 
 ```bash
 ./gradlew :app:testDebugUnitTest --tests '*WidgetPreviewScreenshotTest' -PwidgetPreviewDir="$PWD/build/widget-previews"
