@@ -129,6 +129,8 @@ def clean_markup(text):
 
 def parse_names(section, calendar):
     for line in section.splitlines():
+        # Some pages miss the comma between two links ("[[Elea]] [[Eleonoora]]").
+        line = re.sub(r"\]\]\s+\[\[", "]], [[", line)
         line = clean_markup(line).strip()
         if not line.startswith("*"):
             continue
