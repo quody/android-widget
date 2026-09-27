@@ -86,7 +86,7 @@ def fetch_intro(title, hops=3):
         if e.code == 404:
             return title, ""
         raise
-    redirect = re.match(r"\s*#(?:REDIRECT|UUDELLEENOHJAUS)\s*\[\[([^\]|#]+)", wikitext, re.I)
+    redirect = re.match(r"\s*#(?:REDIRECT|OHJAUS|UUDELLEENOHJAUS)\s*\[\[([^\]|#]+)", wikitext, re.I)
     if redirect and hops:
         time.sleep(0.5)
         return fetch_intro(redirect.group(1).strip(), hops - 1)
